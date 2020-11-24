@@ -1,0 +1,76 @@
+---
+title: "`Dplyr` Homework"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+
+The data for this homework comes from an Open Data Science website called Kaggle. Kaggle has many open source datasets for you to use and most of them come with code uploaded by other users showing different ways to explore the data. It is a great way to learn about data-wrangling and analysis and if you are interested then set up your own account and get going. 
+
+For this task we will make use of their **Starbucks Calorie** dataset. You can find out more information about each dataset and what each column represents \href{https://www.kaggle.com/starbucks/starbucks-menu}{https://www.kaggle.com/starbucks/starbucks-menu}, but we have put the version you need in your data folder.   
+
+
+```{r, warning=FALSE, message=FALSE, echo = FALSE}
+library(tidyverse)
+```
+
+<br>
+
+# Question 1
+
+Load in the dataset and have a look at it. What are the dimensions, variable types, variable names, etc.?
+<br>
+
+# Question 2
+
+Let's first investigate the calories of different drinks. Select the variables `Beverage_category`, `Beverage`, `Beverage prep` and `Calories` from your data. Since we are interested in the calorie content, check if there are any NA values in the data, and drop them if there are.   
+<br>
+
+
+# Question 3
+
+Create a new variable (column) called `calorie_diff`, which stores the difference between 135 calories (135 calories = 10 cubes of sugar!) and the calories in each drink.
+(hint: you'll want to subtract 135 from the calories to see which drink have more or less than 10 cups of sugar). 
+<br>
+
+
+# Question 4
+
+Summarise the mean number of calories in each `beverage_category`.  Which 3 category of drinks have the most calories? Which 3 drinks have the least? Write a small summary of your findings.  
+
+<br>
+
+
+# Question 5
+
+Let's look at this a different way. What is the average number of calories in each `Beverage_prep` type?    
+<br>
+
+# Question 6
+
+Which `Beverage_prep` type contains more than the average calories of all drinks?   
+*Hint: to answer this, you'll have to first figure out what the average calories across all drinks are, and then use that as a filter for the grouped `Beverage_prep` data.*
+
+
+# Question 7
+
+Which is the best type of **coffee** drink to get if you're worried about consuming too many calories? 
+
+
+
+
+
+
+
+

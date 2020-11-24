@@ -1,0 +1,91 @@
+---
+title: "week01_day2_dplyer_homework"
+output: html_notebook
+---
+call tidyverse
+```{r}
+library(tidyverse)
+
+```
+
+Read in data to starbucks_data
+```{r}
+starbucks_data <- read_csv("data/starbucks_drinkMenu_expanded.csv")
+```
+
+
+Q1: Basic data checks:
+Dim: 242 obvs of 18 variables
+Names: 2 text variables relating to name and preparation method, remaining are numeric (measurement or %) relating to nutritional content
+```{r}
+dim(starbucks_data)
+names(starbucks_data)
+head(starbucks_data, 10)
+
+```
+
+Q2:select variables, drop NA observations:
+```{r}
+calory_data <- select(starbucks_data, Beverage_category, Beverage, Beverage_prep, Calories )
+# need to check how to ignore na
+calory_data_no_nulls <- filter(calory_data, Calories != "NA")
+
+head(calory_data_no_nulls, 100)
+head(calory_data, 100)
+dim(calory_data)
+dim(calory_data_no_nulls)
+
+```
+
+Q3: add column with variance to 135 cals:
+```{r}
+ data_var_to_135_cals <- mutate(calory_data_no_nulls, calorie_diff = Calories - 135)
+
+
+```
+
+
+Q4: Summarise mean calories by bevarage type:
+
+Three beverages with highest cals: Smoothies, Frappuccino® Blended Coffee, Signature Espresso Drinks
+Three lowest: Coffee, Shaken Iced Beverages, Classic Espresso Drinks
+```{r}
+cals_by_bev_type <- select(data_var_to_135_cals, Beverage_category, Calories) %>% 
+  group_by(Beverage_category)
+
+summarise(cals_by_bev_type, mean(Calories)) 
+# Check how to arrange results by mean(Calories)
+ 
+  
+
+
+
+```
+
+Q5: Average by prep type:
+Note that Beverage_prep category would benefit from refining - e.g. categories like "Tall" and "Tall Nonfat Mailk" suggest perhaps splitting into two variables, size and milk/soymilk type
+```{r}
+cals_by_bev_prep <- select(data_var_to_135_cals, Beverage_prep, Calories) %>% 
+  group_by(Beverage_prep)
+
+summarise(cals_by_bev_prep, mean(Calories)) 
+# Check how to arrange results by mean(Calories)
+```
+
+Q6: Beverage_prep calories vs all-beverage average
+2% Milk, Grande Nonfat Milk and Soymilk have >average calorie content
+```{r}
+# get all-beverage average
+average_cals <- starbucks_data %>% 
+  summarise(average_value = mean(Calories, na.rm = TRUE)) %>% 
+pull()
+
+summarise(cals_by_bev_prep, mean(Calories)) # %>% 
+  # check how to filter for cals > average_cals
+  # filter(cals_by_bev_prep, mean(Calories) >= average_cals)
+
+
+
+```
+
+Q7: Plain ol' coffee, averaging at 4.25 calories, is the best option for those counting calories
