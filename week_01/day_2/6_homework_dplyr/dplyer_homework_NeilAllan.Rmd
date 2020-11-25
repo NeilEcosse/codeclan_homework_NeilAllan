@@ -22,6 +22,12 @@ dim(starbucks_data)
 names(starbucks_data)
 head(starbucks_data, 10)
 
+#corrected version:
+starbucks_data %>% 
+select(Beverage_category, Beverage, Beverage_prep, Calories) %>% 
+  filter(is.na(Calories))
+
+
 ```
 
 Q2:select variables, drop NA observations:
@@ -41,6 +47,9 @@ Q3: add column with variance to 135 cals:
 ```{r}
  data_var_to_135_cals <- mutate(calory_data_no_nulls, calorie_diff = Calories - 135)
 
+# corrected version: Note pipe means you don't have to repeat data source name
+starbucks_data %>% 
+  mutate(calorie_diff = Calories- 135)
 
 ```
 
@@ -56,8 +65,13 @@ cals_by_bev_type <- select(data_var_to_135_cals, Beverage_category, Calories) %>
 summarise(cals_by_bev_type, mean(Calories)) 
 # Check how to arrange results by mean(Calories)
  
-  
+# corrected version - note some could be saved as code and called for head/tail versions
 
+starbucks_data %>% 
+  group_by(Beverage_category)  %>% 
+  summarise(avg_cals = mean(Calories)) %>% 
+  arrange (avg_cals) %>% 
+  head(3)
 
 
 ```

@@ -1,0 +1,91 @@
+---
+title: "Cleaning & Extra `dplyr` Homework"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<br>
+In this homework you are going to use a dataset about movies from [Kaggle](https://www.kaggle.com/tmdb/tmdb-movie-metadata).
+
+Copy over the data to your homework directory and read it in. Remember to load any packages you will be using.
+
+# MVP
+<br>
+**Question 1.** 
+
+After you've read in the data and assigned it to a variable with a useful name, investigate it. Write down some ideas for what you could do to further investigate/clean this data using what you've learned today (no need to code it though, just jot down thoughts and ideas). Feel free to also write down any general thoughts you get looking at the data - this task is just to get you thinking about data and data cleaning/prepping.
+
+
+<br> 
+
+**Question 2.**
+
+A lot of interesting stuff in there! But for now, we are only interested in the movies' titles, their runtime as well as their budget. Select the three columns that contain this information and save them into a new variable called `movies_selected`. Hint: you will have to make a choice between `original_title` and `title`.
+
+<br>
+
+
+**Question 3.**  
+
+Ok, now take your subsetted data `movies_selected`, and count the number of missing values in each column.
+
+<br>
+
+**Question 4.**  
+
+There's not too many NAs, but there are actually quite a few movies with a runtime of 0 in this dataset. Since it's impossible for a movie to have a runtime of 0, use the function `na_if` to convert runtimes of length 0 into NAs. Save this into a new variable called `movies_runtime`. Then count how many missing values there are now in the column `runtime`.
+
+<br>
+
+**Question 5.**  
+
+Impute the missing values in `runtime` with the median runtime using `coalesce` and save this into a new variable called `movies_imputed`. There should now be no missing values in the column `runtime` - check this to make sure.
+
+<br>
+
+**Question 6.**  
+
+Finally, use the `slice_min` and `slice_max` functions on `movies_imputed` to get the movies with the 10 shortest and 10 longest runtimes.
+
+<br>
+**Question 7.**  
+
+Using the `if_else` function, impute anything with a budget below $100 with the median budget. Overwrite your `movies_imputed` so it contains the new budget values.
+
+
+# Extension
+
+
+<br> 
+
+**Question 1.**  
+
+Using `case_when`, create a new column called `budget_type` and label budgets as follows:
+
+* Budgets below 12 million as 'Small budget'
+* Budgets between 12 and 40 million as 'Medium budget'
+* Budgets 40 millions and above as 'Big budget'
+
+Save this into a new variable called `movie_budgets`.
+
+**Hint:** 1e6 is a shorthand way of writing 1 million ($1 \times 10^6$)
+
+
+<br> 
+
+**Question 2.**  
+
+Take the original dataset with all the variables. Using `across` and `where`, summarise the number of missing values, first across all columns of type `character`, and then across all columns of type `numeric`.
+
+<br> 
+

@@ -1,0 +1,127 @@
+---
+title: "Cleaning & Dplyer Homework"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+movie_data<- read_csv("data/movies.csv")
+```
+
+#Q1: Initial investigationof data and ideas for further investigation & cleaning:
+ Cleaning:
+ - original_title and title contain special chars, e.g. $, #
+ - some taglines contain full stop
+ - The varable name "title" is also the name of an R function
+ - "Overview" column could be a nightmare - a long string of free text
+ 
+ Further investigations:
+ - Add columns to compare budget and revenue
+ 
+```{r}
+head(movie_data, 10)
+names(movie_data)
+
+
+```
+
+```{r}
+movie_data %>% 
+  distinct(original_title, title, .keep_all = TRUE)
+```
+
+```{r}
+movie_data %>% 
+  group_by(original_title, title) %>% 
+  summarise(sum(budget))
+```
+
+#Q2: create subset of 3 variables:
+```{r}
+movies_selected <- select(movie_data, title, runtime, budget)
+```
+
+#Q3: Count number of missing values in each column:
+title has o rows; runtime 2; budget 0
+```{r}
+movies_selected %>% 
+summarise(count = sum(is.na(title)))
+```
+Check visually:
+```{r}
+movies_selected  %>% 
+  filter(is.na(title))
+```
+
+#Q4: convert 0 runtime to NA:
+```{r}
+movies_runtime <- 
+movies_selected %>% 
+  mutate(runtime = na_if(runtime, 0))
+```
+Check visually: 
+```{r}
+#check for old value 
+movies_runtime %>% 
+  filter(runtime == 0)
+
+#check for new value 
+movies_runtime %>% 
+  filter(is.na(runtime))
+```
+
+Count missing runtime values:
+There are 37
+```{r}
+movies_runtime %>% 
+  summarise(count = sum(is.na(runtime)))
+```
+
+#Q5: impute missing values with mean:
+```{r}
+movies_imputed <- 
+  movies_runtime %>% 
+  mutate(runtime = coalesce(
+                    runtime,
+                    mean(runtime, na.rm = TRUE)
+  ))
+  
+```
+
+
+check for missing run times:
+```{r}
+movies_imputed %>% 
+  filter(runtime == 0 | is.na(runtime))
+```
+
+
+#Q6: slice_min & slice_max to show 10 shortest & longest runtimes:
+10 longest:
+```{r}
+movies_imputed %>% 
+  slice_max(runtime, n = 10)
+```
+
+10 shortest:
+```{r}
+movies_imputed %>% 
+  slice_min(runtime, n = 10)
+```
+
+#Q7: overwrite any budget less than $100 with median budget:
+```{r}
+movies_imputed %>% 
+  mutate(
+    budget = if_else(
+              budget < 100,
+              median(budget),
+              budget
+    )
+  )
+```
+
