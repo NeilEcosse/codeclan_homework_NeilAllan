@@ -1,0 +1,224 @@
+---
+title: "Week 01 weekend homework - Neil Allan"
+output: html_document
+
+---
+
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+```{r}
+books <- read_csv("data/books.csv")
+```
+
+# 1 - initial "overview" checks on data
+
+I clicked on the object in the Environment panel to open it as a table to eyeball  it, and also ran some basic checks:
+```{r}
+dim(books)
+glimpse(books)
+names(books)
+head(books, 10)
+```
+
+
+# 2 - more "in-depth" checks on data
+
+## 2a - check for NAs
+It doesn't look like there are very many in the data - depending on what they are  and what I decide to look at, I could either recode them, or perhaps just choose to exclude them from my analysis.
+```{r}
+books %>% 
+  summarise(across(.fns = ~sum(is.na(.x))))
+```
+
+## 2b - check for records where number of pages  is 0
+I was thinking this would suggest an error/NA, as a printed book can't have zero pages, but I notice that some of the books returned by this search have an "Audio" publisher.
+
+This makes me wonder what the data is showing me:
+
+A mixture of printed and audio editions?
+Or printed, digital and audio?
+Or all audio?
+Or some other permutation/including some other format which I've not considered?
+
+If I could go back to whoever provided the data, I'd probably ask this question, and see if there was an extra column which could be added to show the different types; 
+I doubt that simply relying on "publisher" containing a string similar to "Audio" would be enough to be sure of identifying all the audio versions, but that could be a rough-and-ready way to find  these rows if I wanted to look into them further.
+
+This also led me to do a quick Google on the two types of isbn number included in the data, to see if they contained any info on this - from an initial glance, it looks like I could pull elements out of isbn13  which would give me information on:
+
+country/region (4th digit of isbn13),
+publisher (digits 5-7),
+and the specific publication (digits 8-12);
+
+A further Google tells me that hardback, paperback and audiobook versions of the same publication  have different ISBN numbers, so if I were to investigate this further, I could perhaps use isbn13 as a further grouping level below title, or extract digits 8-12 and use them to create some sort of derived column. However, it still doesn't look like there's a simple marker for "media type".
+
+
+
+```{r}
+books %>% 
+  filter(num_pages == 0)
+```
+
+## 2c - observations where "authors" contains two or more names seperated by "/"
+I would need to read the metadata or contact the data owner to understand what these "extra" names are.
+
+From an initial glance, and without going down the rabbit hole of Googling individual observations to find out the role performed by the extra names, my thoughts are that they could be:
+
+a) the person who wrote the foreword
+b) a translator
+c) the narrator of the audiobook
+d) an editor
+e) a genuine co-author of the original work
+
+
+This field is misleading if not all the people listed are authors of the original work, and it doesn't seem like a very useful concatenation if its a mix of authors and others, so it might be worth looking into splitting it into separate columns:
+
+e.g if I could guarantee that the first name was the original or primary author, I could isolate this in a new column called something like primary_author.
+
+I'd ideally like to know exactly how this field was constructed,  though -  e.g. what happens if the book genuinely has two or more original co-authors.
+
+As it stands, if you wanted to e.g. get an average rating by author, you'd have to search on part of the field rather than all of it:
+```{r}
+#Hmm, I need to revise 
+
+#pseudo-code:
+ # books_primary_author  <- books %>% 
+    # add new column "primary_author" containing everything to the left of the first instance of "/" in "authors"
+    #filter column primary_author on e.g. "	J.K. Rowling"
+    #group_by primary author, mean(average_rating)
+
+```
+
+
+## 2d - Count the number of observations for each title
+This is ordered by the number of observations descending, just to get a quick idea of how many times a title could appear in the data.
+```{r}
+
+books %>% 
+  select(title) %>% 
+         #authors,
+         #language_code) %>% 
+  
+  group_by(title) %>% 
+           #authors,
+           #language_code) %>%
+  
+  summarise(number_of_rows = n()) %>% 
+  
+  arrange(desc(number_of_rows))
+```
+
+##  2e Check why some titles have multiple entries
+For the example below, there are 9 observations, the most of any in the data; in this case  it looks like  each is from a different publisher, which would make sense for a title written long enough ago to be out of copyright, and, as a famous classic, a book which a number of companies might think it commercially worthwhile to publish.
+
+This information, along with the fact that the data potentially contains audio/text editions of the same title, already tells me I'll need to be careful about the sort of analysis I do.
+
+For example, if the same title is duplicated several times in the data in a different medium, or from a different publisher:
+
+How accurate is the average_rating if this is only for one edition rather than all versions of that title?
+
+Are some  ratings adversely affected by the fact it's an error-strewn hack version of an out-of-copyright work, compared to an "official" version?!
+
+Do I  need to do some cleaning/analysis/grouping of titles which appear more than once before I can start my main analysis?
+
+Or, rather than trying to group by title, should I be ignoring that and focusing on the empirical level in this data, which is actually "edition", and work on that basis?
+```{r}
+books %>% 
+  filter(title == "The Brothers Karamazov")
+```
+
+
+## 2f - Quick check of number of rows by title and language
+I don't think this is telling me anything new, but I think this test might be limited by my knowledge of R:
+What I really want to do is select only titles which appear in the data more than once, under two or more languages.
+```{r}
+books %>% 
+  select(title,
+         language_code) %>% 
+  
+  group_by(title,
+           language_code) %>%
+  
+  summarise(number_of_rows = n()) %>% 
+  
+  arrange(desc(number_of_rows))
+```
+
+
+## 2g - quick check on the distinct languages contained in the data
+There are 25 different different language codes in the data
+
+Two of them are numeric values which look like they might be isbn13 codes - because this column is next to the language code in the data set, it suggest that these rows might have "slipped" across, for example because they have a character in them which is being treated as a column separator, so this should be investigated.
+```{r}
+books %>% 
+  distinct(language_code) #%>% 
+  #group_by(language_code) %>% 
+  #summarise(total_observations = count(language_code)
+
+# how would I order these results?
+
+#books %>% 
+  #select(distinct(language_code))
+  #arrange(language_code)
+   
+```
+## 2h - check observations with numeric language codes
+These two records have NA in the average_rating column, and subsequent columns have slipped to the right
+```{r}
+books %>% 
+  filter(language_code == "9780674842113" | language_code =="9780851742717")
+```
+
+
+# 3 - analysis of data
+Without resolving the questions raised above, I don't feel I'm ready to do any meaningful analysis - to practice my coding, I've written the chunk below to compare the average_rating for any given observation to the average for all observations, but I don't think this means much when there are multiple observations for individual titles.
+
+There are errors in my code - I might come back to this on Monday morning if I'm feeling refreshed, or leave it for the review if not! 
+
+```{r}
+#mean_rating <- books %>% 
+  #select(title, average_rating) %>% 
+  #filter(!is.na(average_rating)) %>% 
+    #summarise(mean_val = mean(average_rating) %>% 
+  #pull()
+  
+  #books %>% 
+    #mutate(variance = average_rating - mean_rating)
+```
+
+
+# 4 - summary of findings
+
+a) There are a relatively small number of NAs in the data - I found 19 instances across 12 columns and 8,469 observations.
+
+b) Twenty-five distinct language codes are used in the data; the  codes should be text, but two of them are numeric, so should be investigated as errors.
+These look like they might actually be isbn13 codes, which suggested that the data had "slipped" across one column to the right; when I filtered on them, they had NA in the average_rating column, and all subsequent columns had slipped.
+
+c) Although the way this data is organised suggested to me at first view that "title" is the lowest level, the fact that there can be multiple entries for the same title means there is actually a lower level, which could perhaps be defined as "edition"; 
+This needs to be considered before conducting analysis - are we interested in looking at titles or "editions"?
+For example, would we want to see the average rating for an individual edition, as shown in the data, or would we want to to aggregate this to a single figure for all the editions of the same title?
+
+d) One of the reasons for multiple instances of the same title is that the same book can have versions released by several different publishers (for example, "The Brothers Karamazov" has editions listed for 9 different publishers, the most of any title in this data set). 
+
+e) As there are observations with zero pages, and publishers containing the word "Audio", it looks like there are at least two different formats of book in the data, audio and text; a column which clearly identified these would be useful.
+
+f) The column "authors" can contain multiple names, and it's not immediately clear from the data who these are: original author? writer of the foreword? translator? etc.
+It would be helpful to understand how this field has been constructed, and then to perhaps split it out into separate columns.
+If we could then look at a "primary" or "original"author, we could then perform analysis such as looking at their rating aggregated across all their titles/editions.
+
+g) Breaking the isbn13 code into its constituent elements could provide extra derived columns to help us analyse the data - as well as publisher,  it contains information on country/region and an identifier for the edition; this probably doesn't provide much information beyond what is contained in the language_code and publisher columns, but might be worth a look.
+
+
+
+
+
+# 5 - questions for tutors
+From 2c above: how could I search for a value in a field (e.g. "/" and use this to split a single column into two?)
+
+From 2d above: how could I quickly get a total for the number of titles which appear more than once in this data? (i.e. just that one figure, rather than the table per title I produced)
+
+From 2f above: How would I select only titles which appear in the data more than once, under two or more languages. (ie show title, language-code, but only where count of languages for a title  > 1)
+
+From 2g above: How do I select distinct items in a variable, and then order these by value/alphabetically? How do I get a summary count of the number of observations for each language?

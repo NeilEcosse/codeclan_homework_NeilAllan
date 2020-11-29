@@ -1,6 +1,8 @@
 ---
 title: "Cleaning & Dplyer Homework"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
@@ -48,6 +50,7 @@ movies_selected <- select(movie_data, title, runtime, budget)
 #Q3: Count number of missing values in each column:
 title has o rows; runtime 2; budget 0
 ```{r}
+# Homework review: could group these as one qry
 movies_selected %>% 
 summarise(count = sum(is.na(title)))
 ```
