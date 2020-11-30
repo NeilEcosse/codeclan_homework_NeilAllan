@@ -1,0 +1,118 @@
+---
+title: "Homework week02 day1"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+library(dplyr)
+library(janitor)
+```
+
+
+```{r}
+card_base <- read_csv("data/CardBase.csv")
+customer_base <- read_csv("data/CustomerBase.csv")
+fraud_base <- read_csv("data/FraudBase.csv")
+transaction_base <- read_csv("data/TransactionBase.csv")
+```
+
+# 1.1 Joins
+## Q1 - clean variable names
+```{r}
+card_base <- clean_names(card_base)
+customer_base <- clean_names(customer_base)
+fraud_base <- clean_names(fraud_base)
+transaction_base <- clean_names(transaction_base)
+```
+
+## Q2 - join card details to customer details
+This returns the same number of rows as the card_base table - this is what we expect, as there should be a customer attached to every credit card
+```{r}
+left_join(card_base, customer_base, by = "cust_id") 
+```
+
+## Q3 - join fraud details to transaction details
+This returns the same number of rows as the transactions table, because fraudulent transactions are a subset of all transactions;
+
+although this type of join returns all records from both tables, it is not possible to have a fraud transaction which doesn't also appear inb a table of all transactions. Any extra rows would suggest an error in the fraud table.
+```{r}
+full_join(fraud_base, transaction_base, by = "transaction_id") 
+```
+
+## Q4 - join card details to transaction details, returning only one instance of the card details
+```{r}
+semi_join(card_base, transaction_base, by = c("card_number"= "credit_card_id"))
+```
+
+
+# 1.2 tidyr
+```{r}
+library(tidyr)
+```
+
+```{r}
+hat_observations <- read_csv("data/hat_observations.csv")
+```
+
+## Q5 -separate one column into two
+```{r}
+hat_observations_new_cols <- hat_observations %>% 
+  separate(
+    col = observation,
+    into = c("hat_colour", "hat_type"),
+    sep = "\\,"
+  )
+```
+
+## Q6 - use unite to create one column from three
+Most berets were observed on 18/06/2018
+```{r}
+
+hat_observations_new_cols %>% 
+  unite(
+    col = "date",
+    c(day, month, year),
+    sep = "/"
+  ) %>% 
+    
+  mutate(date = as.Date(date, "%d/%m/%Y")) %>% 
+    
+  filter(hat_type == "beret") %>% 
+  group_by(date, hat_type) %>% 
+  summarise(total_observations = sum(observation_count)) %>% 
+  arrange(desc(total_observations)) 
+    
+    
+```
+
+# 2.1 Joins
+join 4 datasets
+```{r}
+complete_finance_data <- 
+  left_join(customer_base, card_base, by = "cust_id" ) %>% 
+  left_join(transaction_base, by = c("card_number" = "credit_card_id")) %>%
+  left_join(fraud_base, by = "transaction_id") 
+  
+```
+
+```{r}
+  complete_finance_data %>% 
+  filter(fraud_flag == 1) %>% 
+  select(
+    card_number,
+    card_family,
+    credit_limit,
+    cust_id,
+    age,
+    customer_segment,
+    customer_vintage_group,
+    transaction_id,
+    transaction_date,
+    transaction_value,
+    transaction_segment,
+    fraud_flag
+  ) %>% 
+  arrange(desc(transaction_value))
+  
+```
+
