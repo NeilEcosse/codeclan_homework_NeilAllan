@@ -34,7 +34,7 @@ left_join(card_base, customer_base, by = "cust_id")
 ## Q3 - join fraud details to transaction details
 This returns the same number of rows as the transactions table, because fraudulent transactions are a subset of all transactions;
 
-although this type of join returns all records from both tables, it is not possible to have a fraud transaction which doesn't also appear inb a table of all transactions. Any extra rows would suggest an error in the fraud table.
+although this type of join returns all records from both tables, it is not possible to have a fraud transaction which doesn't also appear in a table of all transactions. Any extra rows would suggest an error in the fraud table.
 ```{r}
 full_join(fraud_base, transaction_base, by = "transaction_id") 
 ```
@@ -81,6 +81,7 @@ hat_observations_new_cols %>%
   group_by(date, hat_type) %>% 
   summarise(total_observations = sum(observation_count)) %>% 
   arrange(desc(total_observations)) 
+  #slice_max(total_observations)
     
     
 ```

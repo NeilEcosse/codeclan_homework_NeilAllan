@@ -1,0 +1,105 @@
+---
+title: "Homework week02 day2"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(tidyverse)
+```
+
+Q1 Load the code_clan_tweets.csv data. Find the number of rows, columns, and list all the variable names.
+```{r}
+code_clan_tweets <- read_csv("data/code_clan_tweets.csv")
+```
+
+```{r}
+dim(code_clan_tweets)
+names(code_clan_tweets)
+```
+
+
+
+Q2 Find the total number of favourited tweets (stored in favorite_count) that CodeClan tweets have got. Don’t add a tweet’s favorite_count to the total when the tweet was quoted (see the is_quote variable).
+```{r}
+code_clan_tweets %>%
+  filter(is_quote == "FALSE") %>% 
+  summarise(total_favourites = sum(favorite_count))  
+```
+
+Q3 Summarise the mean number of retweets (retweet_count), split by the type of platform that was used to tweet (source). Again, omit quoted tweets from the mean.
+
+```{r}
+code_clan_tweets %>% 
+  filter(is_quote == "FALSE") %>% 
+  group_by(source) %>% 
+  summarise(mean_retweets = mean(retweet_count)) %>% 
+  #format(mean_retweets, nsmall = 2) %>% 
+  arrange(desc(mean_retweets))
+```
+
+Q4 Count the total number of likes (i.e. total of favorite_count), split by media type, and arrange them from most likes to least. Assume that any tweets without a listed media type are of type “text”.
+```{r}
+code_clan_tweets %>% 
+  
+  # missing media_types assumed to be "text"
+  mutate(media_type = if_else(is.na(media_type), "text", media_type)) %>% 
+  
+  group_by(media_type) %>% 
+  summarise(total_likes = sum(favorite_count)) %>% 
+  arrange(desc(total_likes))
+```
+
+Q5 Find the mean number of characters that a CodeClan tweet contains
+```{r}
+# not sure if this is the same as "display_text_width" - this seems to be zero if it's just a web link or user name? I don't use twitter, so not sure how these are handled.
+
+#? why do some come out with NA  for code below:
+
+#code_clan_tweets %>% 
+  #mutate(number_chars = str_length(text)) %>% 
+  #select(text, number_chars) %>% 
+  #filter(is.na(number_chars))
+
+# I'll just use display_text_width which has no NAs:
+
+#code_clan_tweets %>% 
+  #filter(is.na(display_text_width))
+
+code_clan_tweets %>% 
+  summarise(mean_number_chars = mean(display_text_width))
+
+# to check - how do I round this to fewer decimal places/display it with fewer dp?
+
+```
+
+Q6 The code_clan_info.csv data file contains status_url along with other info. Load this in, and join it to the code_clan_tweets tibble, so that you have a status_url for each tweet. Decide which variable to join the tibbles on.
+
+```{r}
+code_clan_info <- read_csv("data/code_clan_info.csv")
+```
+
+```{r}
+code_clan_tweets_and_info <-
+left_join(code_clan_info, code_clan_tweets, by = "tweet_id") 
+
+code_clan_tweets_and_info %>% 
+  select(tweet_id, status_url)
+        
+```
+
+Q7 From your new joined data, create a new tibble codeclan_hashtags containing only the tweet_id and hashtags in lowercase for analysis. Keep only those tweets with hashtags.
+
+```{r}
+# I'm not sure about how to create a tibble
+
+codeclan_hashtags <- 
+left_join(code_clan_info, code_clan_tweets, by = "tweet_id") %>%
+  
+filter(!is.na(hashtags)) %>% 
+select(tweet_id, hashtags) %>% 
+arrange(hashtags)
+
+
+```
+
