@@ -1,0 +1,124 @@
+---
+title: "Homework week02 day3"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(stringr)
+```
+
+
+Q1 - create list for 3 day forecast
+```{r}
+forecast_three_days <- list(
+                        "Thursday" = list(temp = 3, chance_rain = 15,wind_speed = 6),
+                        "Friday" = list(temp = 5, chance_rain = 86, wind_speed = 12),
+                        "Saturday" = list(temp = 5, chance_rain = 37, wind_speed = 8)
+                        )
+```
+
+Q2 - Use this list to find:
+
+```{r}
+# i The chance of rain tomorrow (Thursday)
+forecast_three_days$Thursday$chance_rain
+```
+
+```{r}
+# ii The wind speed on the day after tomorrow (Friday)
+forecast_three_days$Friday$wind_speed
+```
+
+```{r}
+# iii The temperature tomorrow (Thursday)
+forecast_three_days$Thursday$temp
+```
+
+
+
+Q3 - matrix of 14 day temperature forecast
+```{r}
+forecast_fourteen_days <- 
+matrix(c(3, 5, 5, 4, 4, 5, 5,
+         6, 7, 7, 6, 6, 6, 6),
+        nrow = 2, ncol = 7, byrow = TRUE)
+
+class(forecast_fourteen_days)
+
+forecast_fourteen_days
+```
+
+
+
+Q4 - select the following:
+```{r}
+# i The third day of the second week:
+forecast_fourteen_days[2,3]
+```
+
+```{r}
+# ii The whole second week:
+forecast_fourteen_days[2,]
+```
+
+```{r}
+# iii The first, third and fifth days in both weeks:
+forecast_fourteen_days[,c(1, 3, 5)]
+```
+
+
+Q5 - Write a function that pre-appends “The answer is:” to any character input, 
+
+while for numeric input, it either just returns the number for numbers less than 10, or divides the number by 10 for numbers greater than 10. 
+
+For anything else return “Invalid input”.
+
+```{r}
+# 1st attempt: test logic to be used in the function
+
+# This seems to work, but get an error message as well as the expected response - am I doing something wrong with my if statements? Is it maybe running all of them because I've not nested them?
+
+answer <- "A"
+
+#prefix_answer_is <- function(answer){}
+
+                      if(is.character(answer)) {
+                        print(str_c("The answer is ", answer))
+                      }
+                      if(answer < 10) {
+                       print(answer )
+                      }
+                      # I've interpreted the question as >= 10 rather than > 10
+
+                       if(answer >= 10) {
+                        print(answer/10)
+                        
+                        } else {print("Invalid input")
+                        }
+                        
+                      
+                         
+```
+
+```{r}
+# 2nd attempt:
+#answer <- 10
+
+#if(is.numeric(answer){
+    #if (answer < 10) {
+    #print(answer)
+    #}else{print(answer/10)
+    #}
+
+#Nope!
+```
+
+
+
+Q6 - function to compare two vectors
+```{r}
+
+```
+
