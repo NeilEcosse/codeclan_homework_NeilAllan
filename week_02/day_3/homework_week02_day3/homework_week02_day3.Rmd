@@ -99,9 +99,32 @@ answer <- "A"
                         }
                         
                       
-                         
 ```
 
+
+```
+
+```{r}
+# corrected answer
+answer_or_divide <- function(x) {
+  if (is.character(x)) {
+    return(paste("The answer is: ", x))
+  }
+
+  if (is.numeric(x)) {
+    if (x < 10) {
+      return(x)
+    } else {
+      return(x / 10)
+    }
+  }
+
+  return("Invalid input")
+}
+```
+
+
+```{r}
 ```{r}
 # 2nd attempt:
 #answer <- 10
@@ -114,7 +137,6 @@ answer <- "A"
 
 #Nope!
 ```
-
 
 
 Q6 - function to compare two vectors
