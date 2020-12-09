@@ -1,0 +1,84 @@
+---
+title: "Combined SQL and Programming Task"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+I've imported and cleaned the data, but haven't continued with the task questions - these are saved here for future reference:
+file:///Users/user/d6_classnotes/week_03/day_3/3_sql_and_programming_task/sql_programming_task.html
+
+# Summary of code below:
+
+1 Makes a link to the database
+
+2 Links the tables employees and teams and makes a single object called employees_teams
+
+3 Cleans the variable names of this new table
+
+4 Creates a new object called employees_teams_clean - this stage:
+
+a) drops  the duplicate team_id column
+b) renames the column "name" as "team_name"
+c) creates a new column "full_name" which concatenates first & last names
+
+
+
+
+
+## MVP3 - source() the credentials file you created in the last step into a code chunk and use the sourced variables to create a connection to the acme_pool database
+
+```{r}
+source("~/acme_credentials.R")
+```
+
+```{r}
+library(RPostgres)
+library(janitor)
+library(tidyverse)
+library(dplyr)
+```
+
+
+```{r}
+acme <- dbConnect(
+    drv= Postgres(),
+  user = Username,
+  password = Password,
+  dbname = Database,
+  host = Host,
+  port = Port,
+  bigint = "numeric"
+)
+```
+
+```{r}
+rm(Password, Username)
+```
+
+```{r}
+dbListTables(acme)
+```
+
+#MVP4 - Get the records of all employees, adding a field full_name containing the first_name and last_name of each employee separated by a space
+```{r}
+employees_teams <- dbGetQuery(acme,  "SELECT * FROM employees LEFT JOIN teams
+ON employees.team_id = teams.id;")
+```
+
+```{r}
+clean_names(employees_teams)
+
+```
+
+```{r}
+employees_teams_clean <- 
+  employees_teams %>% 
+  select(-id..6) %>%
+  rename("team_name"= name) %>% 
+  mutate(full_name = paste(first_name, last_name, sep = " "))
+
+employees_teams_clean
+```
+
