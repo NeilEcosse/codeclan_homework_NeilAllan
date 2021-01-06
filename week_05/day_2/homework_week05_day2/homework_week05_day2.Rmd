@@ -1,0 +1,150 @@
+---
+title: "Homework week 5 day 2"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(tidyverse)
+library(CodeClanData)
+library(ggthemes)
+```
+
+```{r}
+# Create colour scheme
+col_scheme <- c("#E89FE9", "#50434F", "#B6A7B5", "#F9A472", "#BD7040")
+```
+
+# MVP
+## 4.1 Part 1
+### 1. Take the data in the dataset **qb_revenue_breakdown** and make a stacked bar chart showing the sources of revenue across the two years in the dataset.
+
+```{r}
+ggplot(qb_revenue_breakdown) +
+  aes(x = Year, y = Revenue, fill = Product) +
+  geom_col() +
+  scale_y_continuous(labels = scales::comma) +
+  theme_minimal(base_size = 12) +
+  theme(axis.title = element_text(size = 8)) +
+  theme(legend.text = element_text(size = 8)) +
+  scale_fill_manual(values = col_scheme) +
+  labs(
+    x = "\n Year",
+    y = "Revenue \n",
+    title = "Revenue by year",
+    subtitle = "Split by product type \n",
+    fill = "" 
+  )
+```
+
+### 2. Make a line chart showing monthly sales of the “flagship product” - the ‘KwikBit Unit 1’ - over the last year. This data is inside qb_monthly_sales, but you will need to use filter() or subset() (base R).
+
+```{r}
+qb_monthly_sales <-
+  qb_monthly_sales
+```
+
+```{r}
+qb_monthly_sales_flagship <-
+  qb_monthly_sales %>% 
+  filter(Cashflow == "Kwikbit Unit 1 Sales") 
+  
+
+```
+
+```{r}
+ggplot(qb_monthly_sales_flagship) +
+  aes(x = Date, y= Amount) +
+  geom_line() +
+  theme_minimal(base_size = 12) +
+  theme(axis.title = element_text(size = 8)) +
+  theme(legend.text = element_text(size = 8)) +
+  scale_colour_manual(values = col_scheme) +
+  labs(
+    x = "\n Date",
+    y = "Value \n",
+    title = "Kwikbit Unit 1 Sales",
+    subtitle = "For the 12 months to Jul 2019 \n"
+  )
+  
+```
+
+### 3. Make a line chart showing monthly revenue and costs over the last year. This data is also in qb_monthly_sales.
+
+```{r}
+qb_monthly_sales_costs_rev <-
+  qb_monthly_sales %>% 
+  filter(Cashflow %in% c("Total Revenue", "Cost") )
+```
+
+```{r}
+ggplot(qb_monthly_sales_costs_rev) +
+  aes(x = Date, y = Amount, colour = Cashflow) +
+  geom_line() +
+  scale_y_continuous(breaks = c(2000, 2500, 3000),  labels = scales::comma) +
+  theme_minimal(base_size = 12) +
+  theme(axis.title = element_text(size = 8)) +
+  theme(legend.text = element_text(size = 8)) +
+  scale_colour_manual(values = col_scheme) +
+  labs(
+    x = "\n Date",
+    y = "Value \n",
+    title = "Cost and total revenue",
+    subtitle = "For the 12 months to Jul 2019 \n",
+    colour = ""
+  )
+```
+
+### 4.Show annual sales of personal fitness trackers over the last 5 years broken down by company as a ribbon plot (use geom_area). This data is in **qb_competitors**.
+
+```{r}
+qb_competitors <- 
+  qb_competitors 
+```
+
+```{r}
+ggplot(qb_competitors) +
+  aes(x = Year, y =  Revenue, colour = Company) +
+  scale_y_continuous(labels = scales::comma) +
+  geom_area() +
+  theme_minimal(base_size = 12) +
+  theme(axis.title = element_text(size = 8)) +
+  theme(legend.text = element_text(size = 8)) +
+  scale_colour_manual(values = col_scheme) +
+   labs(
+    x = "\n Year",
+    y = "Revenue \n",
+    title = "Annual sales of personal fitness trackers",
+    subtitle = "For competitors 1 - 4 \n",
+    colour = ""
+   )
+```
+
+### 5. Now show the sales from the four competitors as a line graph. Include an extra layer that shows the data points used to make the lines.
+
+```{r}
+ggplot(qb_competitors) +
+  aes(x = Year, y =  Revenue, colour = Company) +
+  geom_line() +
+  scale_y_continuous(labels = scales::comma) +
+  theme_minimal(base_size = 12) +
+  theme(axis.title = element_text(size = 8)) +
+  theme(legend.text = element_text(size = 8)) +
+  scale_colour_manual(values = col_scheme) +
+  labs(
+    x = "\n Year",
+    y = "Revenue \n",
+    title = "Annual sales of personal fitness trackers",
+    subtitle = "For competitors 1 - 4 \n",
+    colour = ""
+   )
+```
+
+
+### 6. Now the company wants to compare the number of steps that their device counts vs. their competitors. Make a line graph of the number of steps throughout time, and use faceting to compare between companies and people. The data for this is in **qb_device_data**.
+
+```{r}
+qb_device_data <- qb_device_data
+```
+
