@@ -9,6 +9,7 @@ output:
 library(tidyverse)
 library(CodeClanData)
 library(ggthemes)
+
 ```
 
 ```{r}
@@ -82,7 +83,7 @@ qb_monthly_sales_costs_rev <-
 ggplot(qb_monthly_sales_costs_rev) +
   aes(x = Date, y = Amount, colour = Cashflow) +
   geom_line() +
-  scale_y_continuous(breaks = c(2000, 2500, 3000),  labels = scales::comma) +
+  scale_y_continuous(breaks = c(1000, 1500, 2000, 2500, 3000),  labels = scales::comma) +
   theme_minimal(base_size = 12) +
   theme(axis.title = element_text(size = 8)) +
   theme(legend.text = element_text(size = 8)) +
@@ -144,7 +145,44 @@ ggplot(qb_competitors) +
 
 ### 6. Now the company wants to compare the number of steps that their device counts vs. their competitors. Make a line graph of the number of steps throughout time, and use faceting to compare between companies and people. The data for this is in **qb_device_data**.
 
+* Not sure how to plot the time component of this
+
+* ?what is the data showing - is this from a person wearing all the devices for 24 hours?
+
+* Am adding a numeric  "time", showing minutes as a decimal of hours, to have a look, tho I think this is unnecessary and over-complicated!
+
+* I've used a free y scale here just to keep things visible;  this is misleading - although the graphs for different products have similar shapes, when you look at the scale, the number of steps recorded has some large variances
 ```{r}
-qb_device_data <- qb_device_data
+qb_device_data_with_time <- qb_device_data %>%
+  mutate(mins_numeric = mins/60) %>% 
+  mutate(time = hours + mins_numeric)
+  
+```
+
+```{r}
+qb_device_data_with_time %>% 
+  arrange(desc(counts)) %>% 
+  head(100)
+```
+
+
+
+```{r}
+ggplot(qb_device_data_with_time) +
+  aes(x = time, y  = counts, colour = id, ) +
+  geom_col(show.legend = FALSE) +
+  #ylim(0,3000) +
+  scale_y_continuous(labels = scales::comma) +
+  theme_minimal(base_size = 8) +
+  theme(axis.title = element_text(size = 6)) +
+  theme(legend.text = element_text(size = 6)) +
+  scale_colour_manual(values = col_scheme ) +
+  facet_wrap(device ~ id, scales = "free_y") +
+  labs(
+    x = "\n Time (hours)",
+    y = "Steps counted \n",
+    title = "Steps counted over time",
+    subtitle = "For 5 people using quikbit and the products of competitors 1 - 3 \n"
+   )
 ```
 
