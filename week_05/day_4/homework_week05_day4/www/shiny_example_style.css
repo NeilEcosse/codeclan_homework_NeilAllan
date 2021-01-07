@@ -1,0 +1,31 @@
+/* Importing free fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Francois+One&family=Press+Start+2P&display=swap');
+
+/* Customising the style of h1 headings */
+h1 {
+  font-family: 'Francois One', sans-serif;
+  color: #636363;
+  font-size: 50px;
+}
+
+/* Customising the background colour of class type well */
+
+.well {
+  background-color: #99d8c9;
+  
+}
+
+/* Customising the background colour of the dropdown */
+
+.selectize-dropdown-content{
+  background-color: #a1d99b;
+  
+}
+
+/* Customising the style of the specific Olympic link */
+
+a[href="https://www.Olympic.org/"] {
+  color: #2ca25f;
+  font-size: 20px;
+  font-family: 'Press Start 2P', cursive;
+}

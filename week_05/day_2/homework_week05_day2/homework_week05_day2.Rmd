@@ -1,249 +1,185 @@
 ---
-title: "Homework week 5 day 2"
+title: "Homework week_05 day_1"
 output:
   html_document:
     df_print: paged
 ---
-
+# Q1 - load and view data
 ```{r}
 library(tidyverse)
 library(CodeClanData)
-library(ggthemes)
-
 ```
 
 ```{r}
-# Create colour scheme
-col_scheme <- c("#E89FE9", "#50434F", "#B6A7B5", "#F9A472", "#BD7040")
+backpack_data <- backpack
+
+names(backpack_data)
+
 ```
 
-# MVP
-## 4.1 Part 1
-### 1. Take the data in the dataset **qb_revenue_breakdown** and make a stacked bar chart showing the sources of revenue across the two years in the dataset.
+# Q2 - What is the distribution of backpack weights that students are carrying?
+
+The graph shows the weight carried by the number of students.
+
+* Backpack weights range from 3 to 35 (?lb)
+
+* Most students carry a backpack weighing 5 - 15
 
 ```{r}
-ggplot(qb_revenue_breakdown) +
-  aes(x = Year, y = Revenue, fill = Product) +
-  geom_col() +
-  scale_y_continuous(labels = scales::comma) +
-  theme_minimal(base_size = 12) +
-  theme(axis.title = element_text(size = 8)) +
-  theme(legend.text = element_text(size = 8)) +
-  scale_fill_manual(values = col_scheme) +
+ggplot(backpack_data) +
+  aes(x = backpack_weight) +
+  geom_bar(col = "white", fill = "steel blue") +
+  scale_x_continuous(breaks = c(5, 10, 15, 20, 25,  30, 35)) +
+  scale_y_continuous(breaks = 0:13) +
   labs(
-    x = "\n Year",
-    y = "Revenue \n",
-    title = "Revenue by year",
-    subtitle = "Split by product type \n",
-    fill = "" 
+    x = "\n Backpack Weight",
+    y = "Number of Students \n",
+    title = "Weight of backpacks carried by students \n"
   )
 ```
 
-### 2. Make a line chart showing monthly sales of the “flagship product” - the ‘KwikBit Unit 1’ - over the last year. This data is inside qb_monthly_sales, but you will need to use filter() or subset() (base R).
+# Q3 - Are there differences in backpack weight between sex?
 
+* Note that there are more females than males in the data (55 Female, 45 Male)
+
+* The most common backpack weight for a female student is 10, for a male student it is 11
+
+* Need to check how to alter the title of the legend
+
+## Check numbers:
 ```{r}
-qb_monthly_sales <-
-  qb_monthly_sales
+backpack_data %>% 
+  group_by(sex) %>% 
+  summarise(count = n())
 ```
 
+## Plot data:
 ```{r}
-qb_monthly_sales_flagship <-
-  qb_monthly_sales %>% 
-  filter(Cashflow == "Kwikbit Unit 1 Sales") 
+ggplot(backpack_data) +
+  aes(x = backpack_weight, fill = sex) +
+  geom_histogram(col = "white") +
+  scale_x_continuous(breaks = c(5, 10, 15, 20, 25,  30, 35)) +
+  scale_y_continuous(breaks = 0:13) +
+  facet_wrap(~ sex) +
+  labs(
+    x = "\n Backpack Weight",
+    y = "Number of Students \n",
+    title = "Weight of backpacks carried by students \n"
+  )
+```
+
+# Q4 - What is the relationship between body weight and backpack weight?
+
+* Not sure how to approach this:
+
+  * Could I have used the body weight/backpack weight ratio which is already in the data?
   
-
-```
+  * Can I add a line to my scatter graph which will test if there is a significant relationship between body weight and backpack weight? (I've tried this via Google but not yet sure what I'm looking for)
 
 ```{r}
-ggplot(qb_monthly_sales_flagship) +
-  aes(x = Date, y= Amount) +
-  geom_line() +
-  theme_minimal(base_size = 12) +
-  theme(axis.title = element_text(size = 8)) +
-  theme(legend.text = element_text(size = 8)) +
-  scale_colour_manual(values = col_scheme) +
+ggplot(backpack_data) +
+  aes(x = body_weight, y = backpack_weight) +
+  geom_point() +
+  geom_smooth(method = "lm") +
   labs(
-    x = "\n Date",
-    y = "Value \n",
-    title = "Kwikbit Unit 1 Sales",
-    subtitle = "For the 12 months to Jul 2019 \n"
-  )
-  
-```
-
-### 3. Make a line chart showing monthly revenue and costs over the last year. This data is also in qb_monthly_sales.
-
-```{r}
-qb_monthly_sales_costs_rev <-
-  qb_monthly_sales %>% 
-  filter(Cashflow %in% c("Total Revenue", "Cost") )
-```
-
-```{r}
-ggplot(qb_monthly_sales_costs_rev) +
-  aes(x = Date, y = Amount, colour = Cashflow) +
-  geom_line() +
-  scale_y_continuous(breaks = c(1000, 1500, 2000, 2500, 3000),  labels = scales::comma) +
-  theme_minimal(base_size = 12) +
-  theme(axis.title = element_text(size = 8)) +
-  theme(legend.text = element_text(size = 8)) +
-  scale_colour_manual(values = col_scheme) +
-  labs(
-    x = "\n Date",
-    y = "Value \n",
-    title = "Cost and total revenue",
-    subtitle = "For the 12 months to Jul 2019 \n",
-    colour = ""
+    x = "\n Body Weight",
+    y = "Backpack Weight \n",
+    title = "Body Weight vs Backpack Weight \n"
   )
 ```
 
-### 4.Show annual sales of personal fitness trackers over the last 5 years broken down by company as a ribbon plot (use geom_area). This data is in **qb_competitors**.
+# Q5 - Is this relationship different between men and women? Choose an appropriate plot and interpret your findings.
+
+* As with Q4 above, I'm not really sure if my graph is fit for purpose
+
+* There does seem to be a relationship you might expect, that backpack weight increases with body weight, but there are a lot of outliers
+
+* Given the subject matter, I suppose the outliers are expected: just because you physically **can** carry a heavier packpack doesn't mean you need or want to.
 
 ```{r}
-qb_competitors <- 
-  qb_competitors 
-```
-
-```{r}
-ggplot(qb_competitors) +
-  aes(x = Year, y =  Revenue, colour = Company) +
-  scale_y_continuous(labels = scales::comma) +
-  geom_area() +
-  theme_minimal(base_size = 12) +
-  theme(axis.title = element_text(size = 8)) +
-  theme(legend.text = element_text(size = 8)) +
-  scale_colour_manual(values = col_scheme) +
-   labs(
-    x = "\n Year",
-    y = "Revenue \n",
-    title = "Annual sales of personal fitness trackers",
-    subtitle = "For competitors 1 - 4 \n",
-    colour = ""
-   )
-```
-
-### 5. Now show the sales from the four competitors as a line graph. Include an extra layer that shows the data points used to make the lines.
-
-```{r}
-ggplot(qb_competitors) +
-  aes(x = Year, y =  Revenue, colour = Company) +
-  geom_line() +
-  scale_y_continuous(labels = scales::comma) +
-  theme_minimal(base_size = 12) +
-  theme(axis.title = element_text(size = 8)) +
-  theme(legend.text = element_text(size = 8)) +
-  scale_colour_manual(values = col_scheme) +
+ggplot(backpack_data) +
+  aes(x = body_weight, y = backpack_weight, colour = sex) +
+  geom_point() +
+  geom_smooth(method = "lm") +
   labs(
-    x = "\n Year",
-    y = "Revenue \n",
-    title = "Annual sales of personal fitness trackers",
-    subtitle = "For competitors 1 - 4 \n",
-    colour = ""
-   )
+    x = "\n Body Weight",
+    y = "Backpack Weight \n",
+    title = "Body Weight vs Backpack Weight \n"
+  )
 ```
 
 
-### 6. Now the company wants to compare the number of steps that their device counts vs. their competitors. Make a line graph of the number of steps throughout time, and use faceting to compare between companies and people. The data for this is in **qb_device_data**.
+# Q6 - What proportion of students report back pain?
 
-* Not sure how to plot the time component of this
+* Struggling to remember how to do this
 
-* ?what is the data showing - is this from a person wearing all the devices for 24 hours?
+* Think I need to do the calculation for total number of records, then use a command called "pull" or something similar to bring it in to use in my ratio calculation
 
-* Am adding a numeric  "time", showing minutes as a decimal of hours, to have a look, tho I think this is unnecessary and over-complicated! Not sure how to make a combined field in HH:MM format.
-
-* I've used a free y scale here just to keep things visible;  this is misleading - although the graphs for different products have similar shapes, when you look at the scale, the number of steps recorded has some large variances
-
-* This graph is way too busy - is there a wayto add a filter button so you can choose to show one person at a time?
 ```{r}
-qb_device_data_with_time <- qb_device_data %>%
-  mutate(mins_numeric = mins/60) %>% 
-  mutate(time = hours + mins_numeric)
+# 1st attempt
+back_pain_data <- backpack_data %>% 
+  mutate(back_pain_text = (ifelse(back_problems == 0,
+                          "No back problems",
+                          "Has back problems"))) %>% 
+group_by(back_pain_text) %>% 
+summarise(number_of_students = n())
+
+
   
 ```
 
 ```{r}
-qb_device_data_with_time %>% 
-  arrange(desc(counts)) %>% 
-  head(100)
+# 2nd attempt
+total_students <- backpack_data %>% 
+  summarise(total_students = n()) %>% 
+pull()
+
+
 ```
 
 
-### 1st attempt
+# Q7 - Is this proportion different between men and women?
+
+* Same problem as Q6
+
+* Working it out manually: Only 18% of males have back problems compared to 44% of females.
+
 ```{r}
-ggplot(qb_device_data_with_time) +
-  aes(x = time, y  = counts, colour = id, ) +
-  geom_col(show.legend = FALSE) +
-  #ylim(0,3000) +
-  scale_y_continuous(labels = scales::comma) +
-  theme_minimal(base_size = 8) +
-  theme(axis.title = element_text(size = 6)) +
-  theme(legend.text = element_text(size = 6)) +
-  scale_colour_manual(values = col_scheme ) +
-  facet_wrap(device ~ id, scales = "free_y") +
-  labs(
-    x = "\n Time (hours)",
-    y = "Steps counted \n",
-    title = "Steps counted over time",
-    subtitle = "For 5 people using quikbit and the products of competitors 1 - 3 \n"
-   )
+back_pain_data_gender <- backpack_data%>% 
+  mutate(back_pain_text = (ifelse(back_problems == 0,
+                                  "No back problems",
+                                  "Has back problems"))) %>% 
+group_by(sex, back_pain_text) %>% 
+summarise(number_of_students = n()) %>% 
+pivot_wider(names_from = sex, values_from = number_of_students)
+
 ```
 
-### 2nd attempt: see what it looks like with only one person at a time
+# Q8 - Now you’ve investigated your data separately, create plots to describe the relationship between backpack weight, body weight, gender and reported backpain.
 
-* You can at least start to notice differences between devices here- e.g. value of **peak just after 14 hours** is **higher for competitor3**
+* I'm  not sure how to plot this to get a view of any relationship between these variables.
 
-* You could e.g. request more data on what the person was doing around this time to try and work out why different measurements were recorded
-
-* But I think I should have just graphed using hours, to get a smaller number of bins
-
+## Add text description of back problems:
 ```{r}
-qb_device_data_comp1 <- qb_device_data %>%
-  #filter(Cashflow %in% c("qikbit1", "competitor1") ) %>% 
-  filter(id == "person1") %>% 
-  mutate(mins_numeric = mins/60) %>% 
-  mutate(time = hours + mins_numeric)
-
-ggplot(qb_device_data_comp1) +
-  aes(x = time, y  = counts, colour = id, ) +
-  geom_col(show.legend = FALSE) +
-  scale_x_continuous(breaks = c(2,4,6,8,10,12,14,16,18,20,22,24)) +
-  scale_y_continuous(labels = scales::comma) +
-  theme_minimal(base_size = 8) +
-  theme(axis.title = element_text(size = 6)) +
-  theme(legend.text = element_text(size = 6)) +
-  scale_colour_manual(values = col_scheme ) +
-  facet_grid(device ~ id) +
-  labs(
-    x = "\n Time (hours)",
-    y = "Steps counted \n",
-    title = "Steps counted over time",
-    subtitle = "For person 1 using qikbit and competitors 1 - 3 \n"
-   )
+backpack_data <- backpack_data%>% 
+  mutate(back_problems_text = (ifelse(back_problems == 0,
+                                  "No back problems",
+                                  "Has back problems")))
 ```
 
-### 3rd attempt: just use hours, not minutes:
+## Plot data
 ```{r}
-qb_device_data_comp1 <- qb_device_data %>%
-  #filter(Cashflow %in% c("qikbit1", "competitor1") ) %>% 
-  filter(id == "person1") %>% 
-  mutate(mins_numeric = mins/60) %>% 
-  mutate(time = hours + mins_numeric)
 
-ggplot(qb_device_data_comp1) +
-  aes(x = hours, y  = counts, colour = id) +
-  geom_col(show.legend = FALSE) +
-  scale_x_continuous(breaks = c(2,4,6,8,10,12,14,16,18,20,22,24)) +
-  scale_y_continuous(labels = scales::comma) +
-  theme_minimal(base_size = 8) +
-  theme(axis.title = element_text(size = 6)) +
-  theme(legend.text = element_text(size = 6)) +
-  scale_colour_manual(values = col_scheme ) +
-  facet_grid(device ~ id) +
+ggplot(backpack_data) +
+  aes(x = body_weight, y = backpack_weight, colour = sex) +
+  geom_point() +
+  # geom_smooth(method = "lm") +
+  facet_wrap(back_problems_text ~ sex) +
   labs(
-    x = "\n Time (hours)",
-    y = "Steps counted \n",
-    title = "Steps counted over time",
-    subtitle = "For person 1 using qikbit and the competitors 1 - 3 \n"
-   )
+    x = "\n Body Weight",
+    y = "Backpack Weight \n",
+    title = "Body Weight vs Backpack Weight",
+    subtitle  = "By gender and presence of back problems \n"
+  )
 ```
 
