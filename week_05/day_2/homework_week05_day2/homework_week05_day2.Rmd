@@ -190,9 +190,11 @@ ggplot(qb_device_data_with_time) +
 
 ### 2nd attempt: see what it looks like with only one person at a time
 
-*You can at least start to notice differences between devices here- e.g. value of peak just after 14 hours
+* You can at least start to notice differences between devices here- e.g. value of **peak just after 14 hours** is **higher for competitor3**
 
-* but I think I should have just graphed using hours, to get a smaller number of bins
+* You could e.g. request more data on what the person was doing around this time to try and work out why different measurements were recorded
+
+* But I think I should have just graphed using hours, to get a smaller number of bins
 
 ```{r}
 qb_device_data_comp1 <- qb_device_data %>%
@@ -228,7 +230,7 @@ qb_device_data_comp1 <- qb_device_data %>%
   mutate(time = hours + mins_numeric)
 
 ggplot(qb_device_data_comp1) +
-  aes(x = hours, y  = counts, colour = id, ) +
+  aes(x = hours, y  = counts, colour = id) +
   geom_col(show.legend = FALSE) +
   scale_x_continuous(breaks = c(2,4,6,8,10,12,14,16,18,20,22,24)) +
   scale_y_continuous(labels = scales::comma) +
