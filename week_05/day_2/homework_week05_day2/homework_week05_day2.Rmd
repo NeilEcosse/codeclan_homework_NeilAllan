@@ -149,9 +149,11 @@ ggplot(qb_competitors) +
 
 * ?what is the data showing - is this from a person wearing all the devices for 24 hours?
 
-* Am adding a numeric  "time", showing minutes as a decimal of hours, to have a look, tho I think this is unnecessary and over-complicated!
+* Am adding a numeric  "time", showing minutes as a decimal of hours, to have a look, tho I think this is unnecessary and over-complicated! Not sure how to make a combined field in HH:MM format.
 
 * I've used a free y scale here just to keep things visible;  this is misleading - although the graphs for different products have similar shapes, when you look at the scale, the number of steps recorded has some large variances
+
+* This graph is way too busy - is there a wayto add a filter button so you can choose to show one person at a time?
 ```{r}
 qb_device_data_with_time <- qb_device_data %>%
   mutate(mins_numeric = mins/60) %>% 
@@ -166,7 +168,7 @@ qb_device_data_with_time %>%
 ```
 
 
-
+### 1st attempt
 ```{r}
 ggplot(qb_device_data_with_time) +
   aes(x = time, y  = counts, colour = id, ) +
@@ -183,6 +185,63 @@ ggplot(qb_device_data_with_time) +
     y = "Steps counted \n",
     title = "Steps counted over time",
     subtitle = "For 5 people using quikbit and the products of competitors 1 - 3 \n"
+   )
+```
+
+### 2nd attempt: see what it looks like with only one person at a time
+
+*You can at least start to notice differences between devices here- e.g. value of peak just after 14 hours
+
+* but I think I should have just graphed using hours, to get a smaller number of bins
+
+```{r}
+qb_device_data_comp1 <- qb_device_data %>%
+  #filter(Cashflow %in% c("qikbit1", "competitor1") ) %>% 
+  filter(id == "person1") %>% 
+  mutate(mins_numeric = mins/60) %>% 
+  mutate(time = hours + mins_numeric)
+
+ggplot(qb_device_data_comp1) +
+  aes(x = time, y  = counts, colour = id, ) +
+  geom_col(show.legend = FALSE) +
+  scale_x_continuous(breaks = c(2,4,6,8,10,12,14,16,18,20,22,24)) +
+  scale_y_continuous(labels = scales::comma) +
+  theme_minimal(base_size = 8) +
+  theme(axis.title = element_text(size = 6)) +
+  theme(legend.text = element_text(size = 6)) +
+  scale_colour_manual(values = col_scheme ) +
+  facet_grid(device ~ id) +
+  labs(
+    x = "\n Time (hours)",
+    y = "Steps counted \n",
+    title = "Steps counted over time",
+    subtitle = "For person 1 using qikbit and competitors 1 - 3 \n"
+   )
+```
+
+### 3rd attempt: just use hours, not minutes:
+```{r}
+qb_device_data_comp1 <- qb_device_data %>%
+  #filter(Cashflow %in% c("qikbit1", "competitor1") ) %>% 
+  filter(id == "person1") %>% 
+  mutate(mins_numeric = mins/60) %>% 
+  mutate(time = hours + mins_numeric)
+
+ggplot(qb_device_data_comp1) +
+  aes(x = hours, y  = counts, colour = id, ) +
+  geom_col(show.legend = FALSE) +
+  scale_x_continuous(breaks = c(2,4,6,8,10,12,14,16,18,20,22,24)) +
+  scale_y_continuous(labels = scales::comma) +
+  theme_minimal(base_size = 8) +
+  theme(axis.title = element_text(size = 6)) +
+  theme(legend.text = element_text(size = 6)) +
+  scale_colour_manual(values = col_scheme ) +
+  facet_grid(device ~ id) +
+  labs(
+    x = "\n Time (hours)",
+    y = "Steps counted \n",
+    title = "Steps counted over time",
+    subtitle = "For person 1 using qikbit and the competitors 1 - 3 \n"
    )
 ```
 
