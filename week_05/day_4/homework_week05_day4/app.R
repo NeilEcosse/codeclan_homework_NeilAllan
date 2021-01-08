@@ -20,29 +20,29 @@ ui <- fluidPage(
     
    
                 sidebarLayout(
-                sidebarPanel(
+                    sidebarPanel(
             
-                radioButtons("season",
-                         tags$i("Choose Summer or Winter Olympics"),
-                         choices = c("Summer", "Winter")
-                ),
+                        radioButtons("season",
+                        tags$i("Choose Summer or Winter Olympics"),
+                        choices = c("Summer", "Winter")
+                        ),
             
             
-                selectInput("team_1",
-                         tags$i("Choose first team"),
-                         choices = all_teams
-                ),
+                        selectInput("team_1",
+                        tags$i("Choose first team"),
+                        choices = all_teams
+                        ),
             
-                selectInput("team_2",
+                        selectInput("team_2",
                             tags$i("Choose second team"),
                             choices = all_teams
-                )        
+                        )        
                 
-                ),
+                    ),
         
-        mainPanel(
-            plotOutput("medal_plot")
-        )
+                mainPanel(
+                plotOutput("medal_plot")
+                )
         
                 )
             ),
