@@ -1,13 +1,13 @@
-# Issues:
-    # How do I sort "all_teams" alphabetically, so they show in this order in my dropdown?
-    # How do I list my links in a column rather than a row on the links tab?
-
 library(shiny)
 library(tidyverse)
 library(shinythemes)
 library(dplyr)
-olympics_overall_medals <- read_csv("data/olympics_overall_medals.csv")
+olympics_overall_medals <- read_csv("data/olympics_overall_medals.csv") 
+olympics_overall_medals <- olympics_overall_medals %>% 
+    arrange(team)
+
 all_teams <- unique(olympics_overall_medals$team) 
+    
 
 
 
@@ -47,10 +47,12 @@ ui <- fluidPage(
                 )
             ),
         tabPanel("Links",
+            column(2,  
                  tags$a("The Olympics", href = "https://www.Olympic.org/"),
                  tags$a("British Athletics", href = "https://www.britishathletics.org.uk/")
 # how do I add more links and show them vertically in a column rather than in a row?                 
                  )
+        )
         )
 )
 
@@ -67,13 +69,18 @@ server <- function(input, output) {
             filter(season == input$season) %>%
             ggplot() +
             aes(x = team, y = count, fill = medal_ordered) +
-            geom_col(show.legend = FALSE) +
+            geom_col() +
             scale_fill_manual(
                 values = c(
                     "1 - Gold" = "Gold",
                     "2 - Silver" = "#B4B4B4",
                     "3 - Bronze" = "#AD8A56"
                 ) 
+            ) +
+            labs(
+                x = "Team",
+                y = "Number of Medals",
+                fill = "Medal Type"
             )
 
     })
