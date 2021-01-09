@@ -13,10 +13,11 @@ all_teams <- unique(olympics_overall_medals$team)
 
 ui <- fluidPage(
     
-    titlePanel("Compare medal results for any two countries"),
+    titlePanel("Compare medal results for any two teams"),
     
         tabsetPanel(
-            tabPanel("Data",  
+            tabPanel("Data", 
+                     
     
    
                 sidebarLayout(
@@ -47,10 +48,9 @@ ui <- fluidPage(
                 )
             ),
         tabPanel("Links",
-            column(2,  
+            column(1,  
                  tags$a("The Olympics", href = "https://www.Olympic.org/"),
                  tags$a("British Athletics", href = "https://www.britishathletics.org.uk/")
-# how do I add more links and show them vertically in a column rather than in a row?                 
                  )
         )
         )
