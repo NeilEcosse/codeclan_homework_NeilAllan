@@ -2,6 +2,7 @@ library(shiny)
 library(tidyverse)
 library(CodeClanData)
 library(sparkline)
+library(shinythemes)
 
 games_list <- unique(sort(game_sales$name))
 developer_list <- unique(sort(game_sales$developer))
@@ -10,6 +11,7 @@ publisher_list <- unique(sort(game_sales$publisher))
 year_list <- unique(sort(game_sales$year_of_release))
 
 ui <- fluidPage(
+    theme = shinytheme("flatly"),
     
     titlePanel("Game Sales"),
     
@@ -26,14 +28,15 @@ ui <- fluidPage(
                
         ), #close 1st column
         
-        # add slider for date range
+        #  slider for date range
         column(8,
                
                sliderInput("year_select",
                               "Select date range",
                               min = min(game_sales$year_of_release),
                               max = max(game_sales$year_of_release),
-                              value = c(min(game_sales$year_of_release), max(game_sales$year_of_release))
+                              value = c(min(game_sales$year_of_release), max(game_sales$year_of_release)),
+                              sep =""
                               
                )
         ), # close 2nd column      
@@ -50,7 +53,7 @@ ui <- fluidPage(
         ) # close 1st column
         
         
-    ) # close row 
+    ) # close fluidrow 2
    
     
 ) #close fluidpage
