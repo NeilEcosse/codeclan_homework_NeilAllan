@@ -17,7 +17,7 @@ ui <- fluidPage(
     
     fluidRow(
         
-        column(3, 
+        column(4, 
                
                selectInput("publisher_select",
                             "Select publisher",
@@ -27,36 +27,49 @@ ui <- fluidPage(
         ), #close 1st column
         
         # add slider for date range
-        #column(8,
-         #      
-         #      sliderInput("year_select",
-         #                     "Select date range",
-         #                     min = min(game_sales$year_of_release),
-         #                     max = max(game_sales$year_of_release)
+        column(8,
+               
+               sliderInput("year_select",
+                              "Select date range",
+                              min = min(game_sales$year_of_release),
+                              max = max(game_sales$year_of_release),
+                              value = c(min(game_sales$year_of_release), max(game_sales$year_of_release))
                               
-         #      ) 
+               )
+        ), # close 2nd column      
         
-    column(9,
-           
-           plotOutput("publisher_plot"), 
-           
-        ) # close 2nd column
+
     ), # close fluidrow 1
+ 
     
+    fluidRow(
+        column(12,
+               
+               plotOutput("publisher_plot"), 
+               
+        ) # close 1st column
+        
+        
+    ) # close row 
    
     
 ) #close fluidpage
 
 server <- function(input, output) {
     
+    years_from_slider <- reactive({
+        seq(input$year_select[1], input$year_select[2], by = 1)
+    })
+    
     output$publisher_plot <- renderPlot({
         game_sales %>%
             filter(publisher == input$publisher_select) %>%
+            filter(year_of_release %in% years_from_slider()) %>% 
             ggplot() +
             aes(x = year_of_release, y = sales) +
             geom_col() +
             labs(
-                title =  input$publisher_select,
+                title =  "Sales by year",
                 x = "Year",
                 y = "Sales"
             )
