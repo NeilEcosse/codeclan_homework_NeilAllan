@@ -1,0 +1,223 @@
+---
+title: "Homework week 6 day 1"
+output:
+  html_document:
+    df_print: paged
+---
+```{r}
+library(prob)
+library(gtools)
+library(tidyverse)
+```
+
+```{r}
+titanic_data <- read_csv("data/titanic.csv")
+```
+
+# 1) Titanic 
+
+Calculate the conditional probabilities prob( survived ∣ crew ) and prob( survived ∣ passenger )
+
+I'm not sure how to do this - proportion below shows that there were more passengers than crew among those who survived; not sure if this answers the question about probability.
+```{r}
+titanic_data %>% 
+distinct(class)
+```
+
+
+### Add passenger/crew column
+```{r}
+titanic_data <- titanic_data %>% 
+  mutate(passenger_crew = case_when(class %in% c("1st", "2nd", "3rd") ~ "passenger",
+                                    TRUE ~ "crew")
+  )
+```
+
+### Get total number of survivors
+```{r}
+total_number_survived <- titanic_data %>%
+  filter(survived == "yes") %>% 
+  nrow()
+```
+
+### Check proportion passengers/crew amongst those who survived
+```{r}
+titanic_data %>% 
+  group_by(passenger_crew) %>% 
+  filter(survived == "yes") %>% 
+  summarise(number_survivors = n(),
+            proportion_of_total_survivors  = round(n()/total_number_survived, 2)
+            )
+```
+
+
+
+# 2) MVP
+
+## 2.1 If I roll a six-sided dice once, what is the probability of getting a number less than 5?
+
+```{r}
+number_possible_outcomes_one_die <- rolldie(1) %>% 
+      nrow()
+
+number_outcomes_under_five_one_die <- rolldie(1) %>% 
+  filter(X1 < 5) %>% 
+    nrow
+
+# Probability of getting a number less than 5:
+number_outcomes_under_five_one_die/number_possible_outcomes_one_die
+
+
+  
+```
+
+
+## 2.2 How many outcomes are there in the sample space of an experiment in which we toss three dice?
+
+```{r}
+rolldie(3) %>% 
+nrow()
+```
+
+
+## 2.3 In an experiment where we roll four dice:
+
+### i how many outcomes are in the event total_equals_5_6_7 (i.e. the total of the four dice equals 5, 6 or 7)?
+```{r}
+rolldie(4) %>% 
+  mutate(total = X1 + X2 + X3 +X4) %>% 
+  filter(total %in% 5:7) %>% 
+  nrow()
+
+```
+
+
+### ii what is the probability of this event?
+```{r}
+possible_outcomes_four_die <- rolldie(4) %>% 
+  mutate(total = X1 + X4 + X3 +X4)
+
+number_outcomes_four_die <- possible_outcomes_four_die %>% 
+nrow()
+
+number_outcomes_sum_5_to_7_four_die <- possible_outcomes_four_die %>% 
+  filter(total %in% 5:7) %>% 
+    nrow
+
+# Probability of getting a total of 5, 6 or 7 from throwing four dice
+number_outcomes_sum_5_to_7_four_die/number_outcomes_four_die
+```
+
+### iii what assumptions do we apply in answering part ii?
+?
+
+
+
+
+## 2.4 Five chairs are placed in a row in a room, along with five people of differing height. The people sit down randomly on the chairs. What is the probability that they sit in order of decreasing height, left to right?
+
+If we assign the people the numbers 1 to 5 from tallest to shortest, we are testing for an event where they sit in the order 1-2-3-4-5 from left to right.
+
+This is a permutation, since order matters.
+
+Need to work out the total number of possible permutations.
+
+### Number of permutations = 120, therefore probability = 1/120 = 0.00833333
+```{r}
+
+permutations(
+  n = 5,
+  r = 5
+) %>% 
+  as_tibble
+```
+
+## 2.5 I roll six dice:
+
+### i what is the probability I see the numbers 6, 5, 4, 3, 2 and 1 in order on the dice, left to right?
+
+1/46656 = 0.00002143
+```{r}
+total_permutations_6_die  <- rolldie(6) %>% 
+  nrow()
+```
+
+
+### ii what is the probability I see one each of the numbers 6, 5, 4, 3, 2 and 1 on the dice regardless of order?
+```{r}
+six_die_all_numbers_any_order <- rolldie(6) %>% 
+  filter(isin(., c(6, 5, 4, 3, 2, 1))) %>% 
+  nrow()
+
+# Probability of getting six different numbers in any order:
+six_die_all_numbers_any_order/total_permutations_6_die
+```
+
+
+## 2.6 If I draw a single card from a 52-card deck, and it is black, what is the probability that its suit is spades? 
+
+26 black cards of which 13 are spades  = 13/26 = 1/2  = 0.5
+
+Combination; 
+A: black card drawn
+AND
+B: spade drawn
+
+A = 26/52 = 1/2
+B = 13/26 = 1/2
+
+P(A∩B)
+
+eh... a bit lost now!
+
+
+
+## 2.7 Eight patients: Alice, Bob, Carmen, Dinesh, Ella, Fergus, Gianna and Henry are waiting to see a doctor, but only five appointment slots are left today.
+
+### i In how many different orders can the doctor see patients today?
+6,720:
+```{r}
+patients <- c("Alice", "Bob", "Carmen", "Dinesh", "Ella", "Fergus", "Gianna",  "Henry")
+
+permutations(
+  n = 8,
+  r = 5,
+  v = patients
+) %>% 
+  as_tibble() %>% 
+  rename("appt_1" = "V1",
+         "appt_2" = "V2",
+         "appt_3" = "V3",
+         "appt_4" = "V4",
+         "appt_5" = "V5")
+```
+
+### ii What is the probability of Gianna and Danesh both being seen today?
+
+```{r}
+all_permutations_appointments  <- 
+  permutations(
+  n = 8,
+  r = 5,
+  v = patients
+) %>% 
+  as_tibble()
+
+count_permutations_appointments  <- 
+  permutations(
+  n = 8,
+  r = 5,
+  v = patients
+) %>% 
+nrow()
+
+# g_and_d_permutations_appointments  <- 
+# all_permutations_appointments %>% 
+# filter(isin(c("Gianna","Danesh")))
+
+```
+
+
+
+
+
