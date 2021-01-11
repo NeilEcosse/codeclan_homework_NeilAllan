@@ -46,7 +46,7 @@ ui <- fluidPage(
                
         ), #close 1st column
         
-        #  slider for date range - why is this "squashed" at right hand side?
+        #  slider for date range
         column(8,
                
                sliderInput("year_select",
