@@ -95,7 +95,7 @@ rolldie(4) %>%
 ### ii what is the probability of this event?
 ```{r}
 possible_outcomes_four_die <- rolldie(4) %>% 
-  mutate(total = X1 + X4 + X3 +X4)
+  mutate(total = rowSums(.))
 
 number_outcomes_four_die <- possible_outcomes_four_die %>% 
 nrow()
@@ -170,6 +170,27 @@ P(A∩B)
 
 eh... a bit lost now!
 
+```{r}
+# answer from homework review
+
+# this is a conditional probability problem.
+# possible source of confusion here: the conditioning event comes first
+S <- cards(jokers = FALSE)
+
+S <- S %>%
+  mutate(black_card = suit == "Club" | suit == "Spade")
+
+S_spades_and_black <- S %>%
+  filter(black_card == TRUE & suit == "Spade")
+prob_spades_and_black <- nrow(S_spades_and_black) / nrow(S)
+
+S_black <- S %>%
+  filter(black_card == TRUE)
+prob_black <- nrow(S_black) / nrow(S)
+
+prob_spades_given_black <- prob_spades_and_black / prob_black
+prob_spades_given_black
+```
 
 
 ## 2.7 Eight patients: Alice, Bob, Carmen, Dinesh, Ella, Fergus, Gianna and Henry are waiting to see a doctor, but only five appointment slots are left today.
@@ -211,10 +232,13 @@ count_permutations_appointments  <-
 ) %>% 
 nrow()
 
-# g_and_d_permutations_appointments  <- 
-# all_permutations_appointments %>% 
-# filter(isin(c("Gianna","Danesh")))
+g_and_d_permutations_appointments  <- 
+all_permutations_appointments %>% 
+filter(isin(., c("Gianna", "Dinesh"), ordered = FALSE)) %>% 
+nrow()
 
+
+g_and_d_permutations_appointments/count_permutations_appointments
 ```
 
 

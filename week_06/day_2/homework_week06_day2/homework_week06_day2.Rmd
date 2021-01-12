@@ -1,0 +1,155 @@
+---
+title: "Homework week 6 day 2"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(prob)
+library(tidyverse)
+library(janitor)
+library(skimr)
+library(e1071)
+library(ggplot2)
+```
+
+
+
+## 1.1 Load and investigate data
+
+```{r}
+mobile_phone_data <- read_csv("data/20190928-items.csv") %>% 
+  clean_names()
+```
+
+### Check if every row represents a different title of phone
+
+They do not - there are seven more observations than there are types of phone
+```{r}
+# Number of observations
+mobile_phone_data %>% 
+  nrow() 
+
+# Number of unique titles
+mobile_phone_data %>% 
+  distinct(title) %>% 
+  nrow() 
+
+# Number of unique "asin" codes
+mobile_phone_data %>% 
+  distinct(asin) %>% 
+  nrow()
+
+```
+
+### Identify the titles which appear more than once
+
+For the purposes of this exercise I'm not going to investigate these any further  - those with the same title have a different "asin" code, I'm just going to use **asin** as unique id
+```{r}
+# Titles which are not unique
+mobile_phone_data %>% 
+  group_by(title) %>% 
+  summarise(number_of_records = n()) %>% 
+  arrange(number_of_records) %>% 
+  filter(number_of_records > 1)
+```
+
+
+## 1.2 Find the brand with the highest numbers of phones in the dataset.
+
+```{r}
+mobile_phone_data %>% 
+  group_by(brand) %>% 
+  summarise(number_of_phones = n()) %>% 
+  arrange(desc(number_of_phones))
+```
+
+## 1.3 For your top brand, plot the distribution of phone ratings as a probability density, overlaying a fitted normal distribution. Do you think the normal distribution provides a good model of these ratings?
+
+* Normal distribution looks like a reasonable match for the data, although:
+
+  * there are outliers
+  
+  * the peak of the normal distribution is to the left of the peak shown in the data
+
+```{r}
+# Get mean & sd
+samsung_stats <- mobile_phone_data %>%
+  filter(brand == "Samsung") %>% 
+  summarise(
+    num = n(),
+    mean = mean(rating),
+    sd = sd(rating)
+  )
+```
+
+
+```{r}
+# Plot the data
+mobile_phone_data %>% 
+  filter(brand == "Samsung") %>% 
+  ggplot() +
+  aes(x = rating) +
+  geom_histogram(aes(y = ..density..), col = "white", bins = 25)  +
+  stat_function(
+    fun = dnorm,
+    args = list(
+      mean = samsung_stats$mean,
+      sd = samsung_stats$sd
+    ),
+    col = "red"
+  )
+```
+
+
+## 1.4 We can be more quantitative in comparing the distribution of top brand ratings with a normal distribution.
+
+You calculated the mean() and sd() of your distribution in an earlier question. Use these values to calculate the proportions of ratings within one-, two- and three standard deviations of the mean. Compare these proportions with those you expect for a normal distribution.
+
+```{r}
+# Add z-scores
+samsung_ratings_scaled <- mobile_phone_data %>% 
+  filter(brand == "Samsung") %>% 
+  mutate(z_rating = scale(rating))
+```
+
+```{r}
+# Check for outliers - sd more than 3
+samsung_ratings_scaled %>% 
+  filter(!between(z_rating, left = -3, right = 3))
+```
+
+
+```{r}
+# Stuck on this - copied from  "hints", but I don't understand the logic
+
+# Also don't know how to pipe all results into one output
+
+samsung_ratings_scaled %>%
+  filter(rating >= samsung_stats$mean - samsung_stats$sd) %>% 
+  filter(rating <= samsung_stats$mean + samsung_stats$sd) %>%
+  summarise(prop_within_1sd = n() / nrow(samsung_ratings_scaled))
+```
+
+```{r}
+# 2nd attempt - getting number of rows from z-scores table
+
+nrow(samsung_ratings_scaled %>% 
+  filter(between(z_rating, left = -1, right = 1))) / nrow(samsung_ratings_scaled)
+
+nrow(samsung_ratings_scaled %>% 
+  filter(between(z_rating, left = -2, right = 2))) / nrow(samsung_ratings_scaled)
+
+nrow(samsung_ratings_scaled %>% 
+  filter(between(z_rating, left = -3, right = 3))) / nrow(samsung_ratings_scaled)
+```
+
+```{r}
+# Proportions in normal distribution
+
+100 * (pnorm(q = 1) - pnorm(q = -1))
+100 * (pnorm(q = 2) - pnorm(q = -2))
+100 * (pnorm(q = 3) - pnorm(q = -3))
+```
+
