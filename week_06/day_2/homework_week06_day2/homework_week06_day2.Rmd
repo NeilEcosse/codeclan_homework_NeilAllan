@@ -164,3 +164,7 @@ c(
 normal_distribution_proportions
 ```
 
+```{r}
+tibble(samsung_proportions, normal_distribution_proportions, diff = (samsung_proportions - normal_distribution_proportions))
+```
+
