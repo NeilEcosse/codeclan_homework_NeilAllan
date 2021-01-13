@@ -135,7 +135,9 @@ samsung_ratings_scaled %>%
 ```{r}
 # 2nd attempt - getting number of rows from z-scores table
 
-samsung_proportions <- c(
+samsung_proportions <-
+
+c(
 100 * (nrow(samsung_ratings_scaled %>% 
   filter(between(z_rating, left = -1, right = 1))) / nrow(samsung_ratings_scaled)),
 
@@ -151,7 +153,9 @@ samsung_proportions
 
 ```{r}
 # Proportions in normal distribution
-normal_distribution_proportions <- c(
+normal_distribution_proportions <-
+
+c(
 100 * (pnorm(q = 1) - pnorm(q = -1)),
 100 * (pnorm(q = 2) - pnorm(q = -2)),
 100 * (pnorm(q = 3) - pnorm(q = -3))
