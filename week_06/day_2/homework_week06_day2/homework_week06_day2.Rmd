@@ -135,14 +135,14 @@ samsung_ratings_scaled %>%
 ```{r}
 # 2nd attempt - getting number of rows from z-scores table
 
-nrow(samsung_ratings_scaled %>% 
-  filter(between(z_rating, left = -1, right = 1))) / nrow(samsung_ratings_scaled)
+100 * (nrow(samsung_ratings_scaled %>% 
+  filter(between(z_rating, left = -1, right = 1))) / nrow(samsung_ratings_scaled))
 
-nrow(samsung_ratings_scaled %>% 
-  filter(between(z_rating, left = -2, right = 2))) / nrow(samsung_ratings_scaled)
+100 * (nrow(samsung_ratings_scaled %>% 
+  filter(between(z_rating, left = -2, right = 2))) / nrow(samsung_ratings_scaled))
 
-nrow(samsung_ratings_scaled %>% 
-  filter(between(z_rating, left = -3, right = 3))) / nrow(samsung_ratings_scaled)
+100 * (nrow(samsung_ratings_scaled %>% 
+  filter(between(z_rating, left = -3, right = 3))) / nrow(samsung_ratings_scaled))
 ```
 
 ```{r}
