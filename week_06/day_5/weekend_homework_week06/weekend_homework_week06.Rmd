@@ -1,0 +1,181 @@
+---
+title: "Weekend homework week 6"
+output: html_notebook
+---
+
+# 1.1 Hypothesis testing - practical
+
+You work for an animal conservation organisation and are looking to do some investigating into some of the animals to provide evidence for some projects you are looking to run.
+
+In this homework we’ll use the **msleep** data set provided in the ggplot package. It concerns the sleeping patterns of various types of mammal.
+
+```{r}
+library(tidyverse)
+library(infer)
+data(msleep)
+```
+
+```{r}
+msleep <- msleep
+```
+
+## 1.1.1 Explore the dataset and familiarise yourself with it
+
+```{r}
+msleep %>% 
+  group_by(order) %>% 
+  summarise(ave_sleep_tot_by_order = mean(sleep_total)) %>% 
+  ggplot(aes(x = reorder(order, -ave_sleep_tot_by_order), y = ave_sleep_tot_by_order)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_col(col = "white") 
+```
+
+```{r}
+msleep %>% 
+  ggplot() +
+  aes(x = sleep_total) +
+  geom_histogram(col = "white", bins = 10, scales = "free_y") +
+  theme_minimal() +
+  #facet_wrap(~vore)
+  facet_wrap(~order)
+  
+```
+
+
+## 1.1.2 Jabberwockies
+
+Jabberwockies sleep for around 7 hours a night, on average. Perform an appropriate statistical test to determine whether the mean sleep_total in the sampled population of animal types differs from the typical value for jabberwockies.
+
+**Need to test:** is there a statistically significant difference between the average sleep time of jabberwockies, and the average sleep time calculated accross all animals in the sample data
+
+**How I'm doing this:** not sure this is right, but:
+
+* Using the msleep data, I'll use bootstrap to create what a normal distribution would look like if the mean sleep time for all animals was 7, the same as for jabberwockies.
+
+* I'll then put the actual "all animals" mean onto this distribution, and see if it is significantly different from 7.
+
+```{r}
+observed_stat_jabberwockies <- 7
+```
+
+
+### i get all animals mean  sleep total
+```{r}
+observed_stat_all_animals  <- msleep %>% 
+  summarise(mean_sleep_total = mean(sleep_total))
+
+observed_stat_all_animals
+```
+
+### ii bootstrap a normal distribution where average sleep total is 7
+```{r}
+null_distribution_all_animals <- msleep %>%
+  specify(response = sleep_total) %>% 
+  hypothesise(null = "point", mu = 7) %>% 
+  generate(reps = 5000, type = "bootstrap") %>% 
+  calculate(stat = "mean")
+```
+### iii visualise normal distribution, overlain with observed mean sleep total for all animals
+```{r}
+null_distribution_all_animals %>% 
+  visualise(bins = 30) +
+  shade_p_value(obs_stat = observed_stat_all_animals$mean_sleep_total,
+                direction = "both")
+```
+
+### iv calculate p value
+
+By this method, there is only a tiny chance that the observed all animals mean of 10.4 hours could occur in a normal distribution where the mean sleep hours is 7
+```{r}
+p_value <- null_distribution_all_animals %>% 
+  get_p_value(obs_stat = observed_stat_all_animals$mean_sleep_total,
+              direct = "both")
+
+p_value
+```
+
+## 1.1.3 Perform an appropriate statistical test to determine whether omnivores sleep for significantly longer than herbivores, on average.
+
+check data:
+```{r}
+msleep %>% 
+  filter(vore %in% c("omni", "herbi")) %>% 
+  mutate(diet  = recode(vore,
+                        "omni" = "Omnivores",
+                        "herbi" = "Herbivores")
+  ) %>%
+  group_by(diet) %>% 
+  summarise(average_hours_sleep = mean(sleep_total)) %>% 
+  ggplot() +
+  aes(x = diet, y = average_hours_sleep) +
+  theme_minimal() +
+  geom_col() +
+  labs(
+    title = "Average hours sleep for herbivores and omnivores \n",
+    x = "\n Diet type",
+    y = "Average hours sleep \n"
+  )
+```
+
+
+```{r}
+```
+
+
+### i null distribution
+
+```{r}
+null_distribution_omni_herbi <- msleep %>% 
+  filter(vore %in% c("omni", "herbi")) %>% 
+  mutate(diet  = recode(vore,
+                        "omni" = "omnivore",
+                        "herbi" = "herbivore")
+         ) %>% 
+  specify(response = sleep_total, explanatory = diet) %>% 
+  hypothesise(null = "independence") %>% 
+  generate(reps = 1000, type = "permute") %>% 
+  calculate(stat = "diff in means", order = c("omnivore", "herbivore"))
+
+head(null_distribution_omni_herbi)
+```
+
+### ii observed statistic
+```{r}
+observed_stat_omni_herbi <- msleep %>%
+  filter(vore %in% c("omni", "herbi")) %>% 
+  mutate(diet  = recode(vore,
+                        "omni" = "omnivore",
+                        "herbi" = "herbivore")
+         ) %>% 
+  specify(sleep_total ~ diet) %>% 
+  calculate(stat = "diff in means", order = c("omnivore", "herbivore"))
+
+observed_stat_omni_herbi
+```
+
+
+### iii put observed stat onto null  distribution
+
+Not sure if my direction is correct here
+```{r}
+null_distribution_omni_herbi %>% 
+  visualise() +
+  shade_p_value(obs_stat = observed_stat_omni_herbi, direction = "greater")
+```
+
+
+### iv calculate p value
+```{r}
+p_value_omni_herbi <- null_distribution_omni_herbi %>% 
+  get_p_value(obs_stat = observed_stat_omni_herbi, direction = "greater")
+
+p_value_omni_herbi
+```
+### v is this significant?
+
+Not sure - not even sure my calculations are correct or doing the right things!
+
+Think it's telling me they're not significantly different - if I was setting a alpha of 0.05, the p value is greater than this; if my null hypothesis is that the ...
+
+

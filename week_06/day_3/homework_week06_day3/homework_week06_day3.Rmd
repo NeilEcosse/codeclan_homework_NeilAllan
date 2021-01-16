@@ -1,6 +1,8 @@
 ---
 title: "Homework week 6 day 3"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ## 1. Load house sales data and explore it
