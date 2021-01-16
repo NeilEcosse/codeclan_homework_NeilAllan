@@ -1,6 +1,8 @@
 ---
 title: "Weekend homework week 6"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 # 1.1 Hypothesis testing - practical
@@ -117,10 +119,42 @@ msleep %>%
     y = "Average hours sleep \n"
   )
 ```
+```{r}
+msleep %>% 
+  filter(vore %in% c("omni", "herbi")) %>% 
+  mutate(diet  = recode(vore,
+                        "omni" = "Omnivores",
+                        "herbi" = "Herbivores")
+  ) %>%
+  ggplot() +
+  aes(x = diet, y = sleep_total) +
+  geom_boxplot() +
+  labs(
+    title = "Average hours sleep for herbivores and omnivores \n"
+  )
+```
 
 
 ```{r}
+msleep %>% 
+  filter(vore %in% c("omni", "herbi")) %>% 
+  mutate(diet  = recode(vore,
+                        "omni" = "Omnivores",
+                        "herbi" = "Herbivores")
+  ) %>%
+  ggplot() +
+  aes(x =  sleep_total) +
+  geom_histogram(col= "white", bins = 25) +
+  scale_y_continuous(breaks = 1:100) +
+  facet_wrap(~diet)
+
 ```
+
+### Hypothesis:
+
+H0: μsleep_total(omnivores)−μsleep_total(herbivores) = 0
+ 
+Ha: μsleep_total(omnivores)−μsleep_total(herbivores) > 0
 
 
 ### i null distribution
@@ -155,9 +189,7 @@ observed_stat_omni_herbi
 ```
 
 
-### iii put observed stat onto null  distribution
-
-Not sure if my direction is correct here
+### iii put observed stat onto null distribution
 ```{r}
 null_distribution_omni_herbi %>% 
   visualise() +
@@ -176,6 +208,6 @@ p_value_omni_herbi
 
 Not sure - not even sure my calculations are correct or doing the right things!
 
-Think it's telling me they're not significantly different - if I was setting a alpha of 0.05, the p value is greater than this; if my null hypothesis is that the ...
+Think it's telling me they're not significantly different - if I was setting a alpha of 0.05, the p value is greater than this; so I can't reject my null hypothesis.
 
 
