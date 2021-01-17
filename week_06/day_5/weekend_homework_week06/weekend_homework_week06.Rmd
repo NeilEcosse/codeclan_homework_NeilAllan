@@ -7,9 +7,9 @@ output:
 
 # 1.1 Hypothesis testing - practical
 
-You work for an animal conservation organisation and are looking to do some investigating into some of the animals to provide evidence for some projects you are looking to run.
+* *You work for an animal conservation organisation and are looking to do some investigating into some of the animals to provide evidence for some projects you are looking to run.*
 
-In this homework we’ll use the **msleep** data set provided in the ggplot package. It concerns the sleeping patterns of various types of mammal.
+* *In this homework we’ll use the msleep data set provided in the ggplot package. It concerns the sleeping patterns of various types of mammal.*
 
 ```{r}
 library(tidyverse)
@@ -30,14 +30,19 @@ msleep %>%
   ggplot(aes(x = reorder(order, -ave_sleep_tot_by_order), y = ave_sleep_tot_by_order)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  geom_col(col = "white") 
+  geom_col(col = "white", fill = "steel blue") +
+  labs(
+    title = "Average sleep total by order \n",
+    x = "\n Order",
+    y = "Average sleep total \n"
+  )
 ```
 
 ```{r}
 msleep %>% 
   ggplot() +
   aes(x = sleep_total) +
-  geom_histogram(col = "white", bins = 10, scales = "free_y") +
+  geom_histogram(col = "white", fill = "steel blue", bins = 20, scales = "free_y") +
   theme_minimal() +
   #facet_wrap(~vore)
   facet_wrap(~order)
@@ -47,7 +52,7 @@ msleep %>%
 
 ## 1.1.2 Jabberwockies
 
-Jabberwockies sleep for around 7 hours a night, on average. Perform an appropriate statistical test to determine whether the mean sleep_total in the sampled population of animal types differs from the typical value for jabberwockies.
+*Jabberwockies sleep for around 7 hours a night, on average. Perform an appropriate statistical test to determine whether the mean sleep_total in the sampled population of animal types differs from the typical value for jabberwockies.*
 
 **Need to test:** is there a statistically significant difference between the average sleep time of jabberwockies, and the average sleep time calculated accross all animals in the sample data
 
@@ -78,6 +83,7 @@ null_distribution_all_animals <- msleep %>%
   generate(reps = 5000, type = "bootstrap") %>% 
   calculate(stat = "mean")
 ```
+
 ### iii - visualise normal distribution, overlain with observed mean sleep total for all animals
 ```{r}
 null_distribution_all_animals %>% 
@@ -112,7 +118,7 @@ msleep %>%
   ggplot() +
   aes(x = diet, y = average_hours_sleep) +
   theme_minimal() +
-  geom_col() +
+  geom_col(fill ="steel blue") +
   labs(
     title = "Average hours sleep for herbivores and omnivores \n",
     x = "\n Diet type",
@@ -130,7 +136,9 @@ msleep %>%
   aes(x = diet, y = sleep_total) +
   geom_boxplot() +
   labs(
-    title = "Average hours sleep for herbivores and omnivores \n"
+    title = "Average hours sleep for herbivores and omnivores \n",
+        x = "\n Diet type",
+    y = "Sleep total \n"
   )
 ```
 
@@ -143,7 +151,7 @@ msleep %>%
                         "herbi" = "Herbivores")
   ) %>%
   ggplot() +
-  aes(x =  sleep_total) +
+  aes(x = sleep_total) +
   geom_histogram(col= "white", bins = 25) +
   scale_y_continuous(breaks = 1:100) +
   facet_wrap(~diet)
@@ -154,7 +162,7 @@ msleep %>%
 
 H0: μsleep_total(omnivores)−μsleep_total(herbivores) = 0
  
-Ha: μsleep_total(omnivores)−μsleep_total(herbivores) > 0
+Ha: μsleep_total(omnivores)−μsleep_total(herbivores) ≠ 0
 
 
 ### i - null distribution
@@ -214,7 +222,7 @@ Think it's telling me they're not significantly different - if I was setting a a
 
 ## 1.1.4 Proportion of domesticated animal types
 
-Perform an appropriate statistical test to determine whether the proportion of domesticated animal types in the population of animal types is greater than 5%.
+*Perform an appropriate statistical test to determine whether the proportion of domesticated animal types in the population of animal types is greater than 5%.*
 
 significance level α = 0.05
 
@@ -240,7 +248,13 @@ msleep_domesticated %>%
   summarise(count = n()) %>% 
 ggplot() +
 aes(x = is_domesticated, y = count) +
-geom_col() 
+geom_col(fill = "steel blue") +
+  labs(
+    title = "Number of types of animal in the msleep table",
+    subtitle = "Showing whether the animal is domesticated \n ",
+    x = "Domesticated",
+    y = "Count"
+  )
 ```
 
 
@@ -287,14 +301,14 @@ p_value_domesticated <- null_distribution_domesticated %>%
 
 p_value_domesticated
 ```
-p-value is less than α, so we reject the null hypothesis
+**p-value is less than α, so we reject the null hypothesis**
 
 
 #  1.2 Hypothesis testing - interpretation
 
 ## 1.2.1 Defining the Hypothesis
 
-For the following three business problems write out H0 and Ha in both mathematical notation and in words. Also state the method you would use to generate the null distribution (bootstrap, permutation or simulation).
+*For the following three business problems write out H0 and Ha in both mathematical notation and in words. Also state the method you would use to generate the null distribution (bootstrap, permutation or simulation).*
 
 ### Coffee shop scenario
 
@@ -332,6 +346,7 @@ We are testing if CTR is greater for position B than the CTR for position B
 Null hypothesis is that the position makes no difference
 
 **H0: μCTR(position B)−μCTR(position A) = 0**
+
 **Ha: μCTR(position B)−μCTR(position A) ≠ 0**
 
 We are testing the population mean for two independent samples, so the null distribution would be constructed using **?**permute
@@ -367,7 +382,7 @@ This is a one-sample test of mean, so I would use bootstrap to create the null  
 
 **Significance level: 0.05, calculated p-value: 0.07**
 
- * Because the p-value is less than the significance level, we reject the null hypothesis in favour of the alternative hypothesis.
+Because the p-value is less than the significance level, we reject the null hypothesis in favour of the alternative hypothesis.
  
  
 
@@ -375,7 +390,7 @@ This is a one-sample test of mean, so I would use bootstrap to create the null  
 
 **Significance level: 0.01, p-value: 0.006**
 
- * Because the p-value is less than the significance level, we reject the null hypothesis in favour of the alternative hypothesis.
+Because the p-value is less than the significance level, we reject the null hypothesis in favour of the alternative hypothesis.
 
 
 ### Manufacturing company problem
