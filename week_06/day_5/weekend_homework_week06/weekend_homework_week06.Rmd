@@ -62,7 +62,7 @@ observed_stat_jabberwockies <- 7
 ```
 
 
-### i get all animals mean  sleep total
+### i - get all animals mean  sleep total
 ```{r}
 observed_stat_all_animals  <- msleep %>% 
   summarise(mean_sleep_total = mean(sleep_total))
@@ -70,7 +70,7 @@ observed_stat_all_animals  <- msleep %>%
 observed_stat_all_animals
 ```
 
-### ii bootstrap a normal distribution where average sleep total is 7
+### ii - bootstrap a normal distribution where average sleep total is 7
 ```{r}
 null_distribution_all_animals <- msleep %>%
   specify(response = sleep_total) %>% 
@@ -78,7 +78,7 @@ null_distribution_all_animals <- msleep %>%
   generate(reps = 5000, type = "bootstrap") %>% 
   calculate(stat = "mean")
 ```
-### iii visualise normal distribution, overlain with observed mean sleep total for all animals
+### iii - visualise normal distribution, overlain with observed mean sleep total for all animals
 ```{r}
 null_distribution_all_animals %>% 
   visualise(bins = 30) +
@@ -86,7 +86,7 @@ null_distribution_all_animals %>%
                 direction = "both")
 ```
 
-### iv calculate p value
+### iv - calculate p-value
 
 By this method, there is only a tiny chance that the observed all animals mean of 10.4 hours could occur in a normal distribution where the mean sleep hours is 7
 ```{r}
@@ -157,7 +157,7 @@ H0: μsleep_total(omnivores)−μsleep_total(herbivores) = 0
 Ha: μsleep_total(omnivores)−μsleep_total(herbivores) > 0
 
 
-### i null distribution
+### i - null distribution
 
 ```{r}
 null_distribution_omni_herbi <- msleep %>% 
@@ -174,7 +174,7 @@ null_distribution_omni_herbi <- msleep %>%
 head(null_distribution_omni_herbi)
 ```
 
-### ii observed statistic
+### ii - observed statistic
 ```{r}
 observed_stat_omni_herbi <- msleep %>%
   filter(vore %in% c("omni", "herbi")) %>% 
@@ -189,7 +189,7 @@ observed_stat_omni_herbi
 ```
 
 
-### iii put observed stat onto null distribution
+### iii - put observed stat onto null distribution
 ```{r}
 null_distribution_omni_herbi %>% 
   visualise() +
@@ -197,17 +197,189 @@ null_distribution_omni_herbi %>%
 ```
 
 
-### iv calculate p value
+### iv - calculate p-value
 ```{r}
 p_value_omni_herbi <- null_distribution_omni_herbi %>% 
   get_p_value(obs_stat = observed_stat_omni_herbi, direction = "greater")
 
 p_value_omni_herbi
 ```
-### v is this significant?
+### v - is this significant?
 
 Not sure - not even sure my calculations are correct or doing the right things!
 
-Think it's telling me they're not significantly different - if I was setting a alpha of 0.05, the p value is greater than this; so I can't reject my null hypothesis.
+Think it's telling me they're not significantly different - if I was setting a alpha of 0.05, the p-value is greater than this; so I can't reject my null hypothesis.
 
 
+
+## 1.1.4 Proportion of domesticated animal types
+
+Perform an appropriate statistical test to determine whether the proportion of domesticated animal types in the population of animal types is greater than 5%.
+
+significance level α = 0.05
+
+H0: πdomesticated = 0.05
+Ha: πdomesticated ≠ 0.05
+
+
+### i - add a "domesticated" flag to the data
+
+**?After looking at the data, I'm trying to make NAs show as "FALSE" - is the code below doing this correctly**
+
+```{r}
+msleep_domesticated <- msleep %>% 
+  mutate(is_domesticated = if_else(
+    conservation == "domesticated", TRUE, FALSE, missing = FALSE))
+
+```
+
+```{r}
+msleep_domesticated %>% 
+  #filter(!is.na(is_domesticated)) %>% 
+  group_by(is_domesticated) %>% 
+  summarise(count = n()) %>% 
+ggplot() +
+aes(x = is_domesticated, y = count) +
+geom_col() 
+```
+
+
+### ii - observed stat
+
+```{r}
+observed_stat_domesticated <- msleep_domesticated %>% 
+  specify(response = is_domesticated, success = "TRUE") %>% 
+  calculate(stat = "prop")
+
+observed_stat_domesticated
+```
+
+### iii - null distribution where proportion of domesticated types is 5%
+```{r}
+null_distribution_domesticated <- msleep_domesticated %>%
+  specify(response = is_domesticated, success = "TRUE") %>% 
+  hypothesize(null = "point", p = 0.05) %>%
+  generate(reps = 5000, type = "simulate") %>%
+  calculate(stat = "prop") 
+
+head(null_distribution_domesticated)
+```
+
+### iv - plot null distribution
+
+
+```{r}
+null_distribution_domesticated %>%
+  visualise(bins = 25)
+```
+
+###  v - plot observed stat on null distribution
+```{r}
+null_distribution_domesticated %>%
+  visualise(bins = 20) +
+  shade_p_value(obs_stat = observed_stat_domesticated, direction = "greater")
+```
+
+### vi - calculate p-value
+```{r}
+p_value_domesticated <- null_distribution_domesticated %>%
+  get_p_value(obs_stat = observed_stat_domesticated, direction = "greater")
+
+p_value_domesticated
+```
+p-value is less than α, so we reject the null hypothesis
+
+
+#  1.2 Hypothesis testing - interpretation
+
+## 1.2.1 Defining the Hypothesis
+
+For the following three business problems write out H0 and Ha in both mathematical notation and in words. Also state the method you would use to generate the null distribution (bootstrap, permutation or simulation).
+
+### Coffee shop scenario
+
+* *You work for a independent coffee shop. The boss tells you that she thinks that around 40% of people in the town (population 30,000) know of the coffee shop, but you are skeptical of the estimate.*
+
+* *You conduct a random survey of 200 people in the town, asking if respondents are aware of your coffee shop. You want to use the sample to test the hypothesis that 40% or more of the town’s population have heard of the coffee shop.*
+
+**Hypothesis:**
+
+**H0: πaware = 0.40**
+
+**Ha: πaware ≠ 0.40**
+
+Th null hypothesis is that 40% of the population is aware of the coffee shop;
+
+The alternative hypothesis is that the proportion of the population which is aware of the coffee shop is not equal to 40%
+
+Because we are testing the proportion of a single sample, we would create the null distribution using simulation.
+
+
+### Website design company scenario
+
+* *You work for a website design company and have performed an A/B test on the position of a banner on a website promoting a particular item.*
+
+* *You selected five days at random last month and then randomly selected 200 of each sampled day’s users into group A and another 200 of that day’s users into group B.*
+ 
+* *Group A continued to be shown the banner at the right hand side of the webpage (its usual position) while group B was shown the banner at the top of the page.*
+
+* *You monitored each sampled user’s interactions with the website, in particular the ‘click through rate’ (CTR) on the banner, i.e. what proportion of sampled users clicked on the banner.*
+
+* *You want to use the sampled data to test the hypothesis that website users overall are more likely to click on the banner if positioned at the top of the page*
+
+We are testing if CTR is greater for position B than the CTR for position B
+
+Null hypothesis is that the position makes no difference
+
+**H0: μCTR(position B)−μCTR(position A) = 0**
+**Ha: μCTR(position B)−μCTR(position A) ≠ 0**
+
+We are testing the population mean for two independent samples, so the null distribution would be constructed using **?**permute
+
+
+### Car manufacturing company scenario
+
+* *You work as an analyst for a car manufacturing company - they have specific standards they must meet for standards and regulation purposes.*
+
+* *You have been asked to check the quality control of the manufacture of a particular car part. You have been given data on a sample of 200 parts produced over the period of a week (the sampled parts were pulled at random from the production line and measured: the factory produced a lot more than 200 parts that week).*
+
+* *The specification of the part stipulates a width of 145mm, and the manufacturing process is said to have ‘drifted’ if the mean width of parts differs significantly from 145mm. You want to use the sampled measurements to test whether the process overall has drifted.*
+
+First thought is that I'm not sure if I'm testing the **proportion** of parts in the sample which are of exactly the correct size, or looking at the **mean** size across the sample; I suppose this might depend on the nature of the manufacturing process - i.e. can some parts "randomly" come out the wrong size, or is it something error on the production line which uniformly affects the size of all parts produced.
+
+If I assume the latter, I think I'm looking at the mean.
+
+The null hypothesis would be that the mean width of parts is 145mm, the alternative hypothesis is that the mean width of parts is not equal to 145mm:
+
+**H0: πwidth = 145**
+
+**Ha: πwidth ≠ 145**
+
+This is a one-sample test of mean, so I would use bootstrap to create the null  distribution.
+
+
+
+## 1.2.2 Interpreting the results
+
+*For the 3 business problems stated above, imagine we performed you got the following p-values (with the given significance levels) write out your interpretation of the results.*
+
+### Coffee shop problem
+
+**Significance level: 0.05, calculated p-value: 0.07**
+
+ * Because the p-value is less than the significance level, we reject the null hypothesis in favour of the alternative hypothesis.
+ 
+ 
+
+### Website company problem
+
+**Significance level: 0.01, p-value: 0.006**
+
+ * Because the p-value is less than the significance level, we reject the null hypothesis in favour of the alternative hypothesis.
+
+
+### Manufacturing company problem
+
+**Significance level: 0.05, p-value: 0.55**
+
+Because the p-value is greater than the significance level, we fail to reject the null hypothesis.
