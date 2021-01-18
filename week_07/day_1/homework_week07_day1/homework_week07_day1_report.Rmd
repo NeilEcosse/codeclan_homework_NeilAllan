@@ -1,0 +1,163 @@
+---
+title: "NYC Citi Bike Report"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+library(lubridate)
+library(tibble)
+library(tidyverse)
+library(tsibble)
+library(tsibbledata)
+library(slider)
+
+```
+
+
+```{r}
+nyc_bikes_df <- nyc_bikes %>% 
+  mutate(
+    start_date = as_date(start_time),
+    stop_date = as_date(stop_time),
+    start_year = year(start_time),
+    start_quarter = quarter(start_time),
+    start_month = month(start_time,
+                        label = TRUE,
+                        abbr = FALSE),
+    start_weekday = wday(start_time,
+                    week_start = 1,
+                    label = TRUE,
+                    abbr = FALSE),
+    trip_duration = (stop_time - start_time),
+    age = start_year - birth_year,
+    #hire_duration_moving_average = slide_period(
+    #  hire_duration,
+    #  ~ mean(., na.rm = TRUE),
+    #  .before = 100,
+    #  .after = 100,
+    #.complete = TRUE
+    #)
+  )
+```
+
+# Overview
+
+This report uses a sample of NYC Citi Bike usage data to assess the following questions:
+
+  * What is the pattern of bike hires over time (e.g. within a year, month, week, or day)?
+  
+  * Do bike hire patterns differ between bike rider demographics? (e.g. gender, type of trip, age)
+  
+  * Any other insights?
+  
+  
+# Background
+
+## About NYC Citi Bike
+
+Citi Bike is New York City’s bike share system. Launched in 2013, it has over 140,000 members, and in July 2020 it recorded its 100 millionth trip.
+
+**Website:**
+https://www.citibikenyc.com/about
+
+
+
+## About the dataset
+
+This report uses a sample which details the usage of 10 bikes throughout 2018.
+
+The dataset is in the public domain, and contains no person-identifiable information.
+
+**Website:**
+https://rdrr.io/github/tidyverts/tsibbledata/man/nyc_bikes.html
+
+
+
+# Analysis of the data
+
+## Number of trips per day
+
+Add commentary: trend peaks in summer, highest single trips date was ??, 
+
+```{r}
+nyc_bikes_df %>%
+  index_by(start_date) %>%
+  summarise(number_of_trips = n()) %>% 
+ggplot() +
+  aes(x = start_date, y = number_of_trips) +
+  geom_line(colour = "steel blue") +
+  #theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    title = "Number of trips per day",
+    x = "",
+    y = "Number of trips \n"
+  )
+```
+
+
+## Number of trips - gender of user
+Add commentary: where gender was recorded, there were many more trips by males:
+
++--------+-----------------+
+| Gender | Number of trips |
++--------+-----------------+
+| Female | 930             |
++--------+-----------------+
+| Male   | 3,069           |
++--------+-----------------+
+
+```{r}
+#nyc_summ_gender <- tibble( nyc_bikes_df %>%
+#  filter(gender!= "Unknown") %>% 
+#  group_by(gender) %>% 
+#  summarise(number_of_hires = n()) )
+#nyc_summ_gender <- nyc_summ_gender %>% 
+#  group_by(gender) %>% 
+#  summarise(number_of_hires = sum(number_of_hires))
+  
+nyc_bikes_df %>%
+  filter(gender!= "Unknown") %>% 
+  index_by(start_month) %>%
+  group_by(gender) %>% 
+  summarise(number_of_trips = n()) %>% 
+ggplot() +
+  aes(x = start_month, y = number_of_trips) +
+  geom_col(fill = "steel blue") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_grid(~gender) +
+  labs(
+   # title = "Number of trips per month",
+    x = "\n 2018",
+    y = "Number of trips \n"
+  )
+```
+## ?check age - is there one 49 year-old who keeps hiring or just general MAMIL behaviour
+```{r}
+
+
+nyc_bikes_df %>%
+  filter(age < 130) %>% 
+  index_by(age) %>%
+  group_by(gender) %>% 
+  summarise(number_of_hires = n()) %>% 
+ggplot() +
+  aes(x = age, y = number_of_hires) +
+  geom_col(fill = "steel blue") +
+  theme_minimal() 
+
+
+```
+
+
+
+# Conclusions and key insights
+
+?address gender imbalance
+
+
+

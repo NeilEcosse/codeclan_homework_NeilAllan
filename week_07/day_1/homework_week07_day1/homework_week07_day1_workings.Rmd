@@ -1,0 +1,134 @@
+---
+title: "Homework week 7 day 1"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r}
+library(lubridate)
+library(tibble)
+library(tidyverse)
+library(tsibble)
+library(tsibbledata)
+library(slider)
+```
+
+
+```{r}
+nyc_bikes_df <- nyc_bikes %>% 
+  mutate(
+    start_date = as_date(start_time),
+    stop_date = as_date(stop_time),
+    start_year = year(start_time),
+    start_quarter = quarter(start_time),
+    start_month = month(start_time,
+                        label = TRUE,
+                        abbr = FALSE),
+    start_weekday = wday(start_time,
+                    week_start = 1,
+                    label = TRUE,
+                    abbr = FALSE),
+    hire_duration = (stop_time - start_time),
+    age = start_year - birth_year,
+    #hire_duration_moving_average = slide_period(
+    #  hire_duration,
+    #  ~ mean(., na.rm = TRUE),
+    #  .before = 100,
+    #  .after = 100,
+    #.complete = TRUE
+    #)
+  )
+```
+
+### Checks: age
+```{r}
+nyc_bikes_df %>% 
+filter(age >= 130 | age <= 18) %>% 
+  select(age, birth_year)
+```
+### Checks :  hires longer than one day
+
+```{r}
+nyc_bikes_df %>% 
+  filter(start_date != stop_date) %>% 
+  select(hire_duration,
+         start_time,
+         stop_time) %>% 
+  arrange(desc(hire_duration))
+```
+### Checks :  longest/shortest hires
+
+```{r}
+nyc_bikes_df %>% 
+  select(hire_duration,
+         start_date,
+         stop_date) %>% 
+  arrange(desc(hire_duration)) %>% 
+  head(20)
+
+nyc_bikes_df %>% 
+  select(hire_duration,
+         start_date,
+         stop_date) %>% 
+  arrange(hire_duration) %>% 
+  head(20)
+```
+
+### Checks :  days with most hires
+```{r}
+nyc_bikes_df %>%
+  index_by(start_date) %>% 
+  summarise(number_of_hires = n()) %>% 
+  arrange(desc(number_of_hires)) %>% 
+  head(50)
+```
+
+
+
+```{r}
+nyc_bikes_df %>% 
+index_by(start_weekday) %>% 
+summarise(number_of_hires = n()) %>% 
+ggplot() +
+  aes(x = start_weekday, y = number_of_hires) +
+  geom_col()
+```
+
+
+```{r}
+nyc_bikes_df %>%
+  filter(gender!= "Unknown") %>% 
+  index_by(start_date) %>%
+  group_by(gender) %>% 
+  summarise(number_of_hires = n()) %>% 
+ggplot() +
+  aes(x = start_date, y = number_of_hires) +
+  geom_line() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_grid(~gender)
+    
+```
+
+```{r}
+nyc_bikes_df %>%
+  filter(gender!= "Unknown") %>% 
+  index_by(start_month) %>%
+  group_by(gender) %>% 
+  summarise(number_of_hires = n()) %>% 
+ggplot() +
+  aes(x = start_month, y = number_of_hires) +
+  geom_col(fill = "steel blue") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_grid(~gender)
+```
+
+
+```{r}
+nyc_bikes_df %>% 
+select(stop_time, start_time) %>% 
+  mutate(hire_t = stop_time - start_time)
+```
+

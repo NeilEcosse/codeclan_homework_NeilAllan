@@ -176,7 +176,7 @@ null_distribution_omni_herbi <- msleep %>%
          ) %>% 
   specify(response = sleep_total, explanatory = diet) %>% 
   hypothesise(null = "independence") %>% 
-  generate(reps = 1000, type = "permute") %>% 
+  generate(reps = 10000, type = "permute") %>% 
   calculate(stat = "diff in means", order = c("omnivore", "herbivore"))
 
 head(null_distribution_omni_herbi)
@@ -341,13 +341,13 @@ Because we are testing the proportion of a single sample, we would create the nu
 
 * *You want to use the sampled data to test the hypothesis that website users overall are more likely to click on the banner if positioned at the top of the page*
 
-We are testing if CTR is greater for position B than the CTR for position B
+We are testing if CTR is greater for position B than the CTR for position A
 
 Null hypothesis is that the position makes no difference
 
 **H0: μCTR(position B)−μCTR(position A) = 0**
 
-**Ha: μCTR(position B)−μCTR(position A) ≠ 0**
+**Ha: μCTR(position B)−μCTR(position A) > 0**
 
 We are testing the population mean for two independent samples, so the null distribution would be constructed using **?**permute
 
@@ -382,7 +382,7 @@ This is a one-sample test of mean, so I would use bootstrap to create the null  
 
 **Significance level: 0.05, calculated p-value: 0.07**
 
-Because the p-value is less than the significance level, we reject the null hypothesis in favour of the alternative hypothesis.
+Because the p-value is greater than than the significance level, we fail to reject the null hypothesis.
  
  
 
