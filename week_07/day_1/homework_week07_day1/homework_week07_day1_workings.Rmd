@@ -16,6 +16,8 @@ library(slider)
 
 
 ```{r}
+# Add derived columns to dataset
+
 nyc_bikes_df <- nyc_bikes %>% 
   mutate(
     start_date = as_date(start_time),
@@ -29,15 +31,19 @@ nyc_bikes_df <- nyc_bikes %>%
                     week_start = 1,
                     label = TRUE,
                     abbr = FALSE),
-    hire_duration = (stop_time - start_time),
+    start_hour = hour(start_time),
+    start_minute = minute(start_time),
+    start_hour_numeric = (start_hour + (start_minute/60)),
+    trip_duration = (stop_time - start_time),
     age = start_year - birth_year,
-    #hire_duration_moving_average = slide_period(
-    #  hire_duration,
-    #  ~ mean(., na.rm = TRUE),
-    #  .before = 100,
-    #  .after = 100,
-    #.complete = TRUE
-    #)
+    age_group = case_when(age  >= 65 ~ "65+",
+                          age  >= 55 ~ "55 - 64",
+                          age  >= 45 ~ "45 - 54",
+                          age  >= 35 ~ "35 - 44",
+                          age  >= 25 ~ "25 - 34",
+                          age  >= 18 ~ "18 - 24",
+                          TRUE ~ NA_character_
+    )
   )
 ```
 
@@ -89,6 +95,7 @@ nyc_bikes_df %>%
 ```{r}
 nyc_bikes_df %>% 
 index_by(start_weekday) %>% 
+group_by(gender) %>% 
 summarise(number_of_hires = n()) %>% 
 ggplot() +
   aes(x = start_weekday, y = number_of_hires) +
@@ -123,6 +130,18 @@ ggplot() +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_grid(~gender)
+```
+
+```{r}
+nyc_bikes_df %>%
+  filter(age < 130) %>% 
+  index_by(start_hour_numeric) %>%
+  group_by(gender) %>% 
+  summarise(number_of_hires = n()) %>% 
+ggplot() +
+  aes(x = start_hour_numeric, y = number_of_hires) +
+  geom_col(fill = "steel blue") +
+  theme_minimal() 
 ```
 
 

@@ -2,22 +2,24 @@
 title: "NYC Citi Bike Report"
 output:
   html_document:
-    df_print: paged
+    code_folding: hide
 ---
 
-```{r}
-knitr::opts_chunk$set(echo = FALSE)
+```{r, warning = F, message = F}
 library(lubridate)
 library(tibble)
 library(tidyverse)
 library(tsibble)
 library(tsibbledata)
 library(slider)
+library(leaflet)
 
 ```
 
 
-```{r}
+```{r, warning = F, message = F}
+# Add derived columns to dataset
+
 nyc_bikes_df <- nyc_bikes %>% 
   mutate(
     start_date = as_date(start_time),
@@ -31,15 +33,19 @@ nyc_bikes_df <- nyc_bikes %>%
                     week_start = 1,
                     label = TRUE,
                     abbr = FALSE),
+    start_hour = hour(start_time),
+    start_minute = minute(start_time),
+    start_hour_numeric = (start_hour + (start_minute/60)),
     trip_duration = (stop_time - start_time),
     age = start_year - birth_year,
-    #hire_duration_moving_average = slide_period(
-    #  hire_duration,
-    #  ~ mean(., na.rm = TRUE),
-    #  .before = 100,
-    #  .after = 100,
-    #.complete = TRUE
-    #)
+    age_group = case_when(age  >= 65 ~ "65+",
+                          age  >= 55 ~ "55 - 64",
+                          age  >= 45 ~ "45 - 54",
+                          age  >= 35 ~ "35 - 44",
+                          age  >= 25 ~ "25 - 34",
+                          age  >= 18 ~ "18 - 24",
+                          TRUE ~ NA_character_
+    )
   )
 ```
 
@@ -47,9 +53,11 @@ nyc_bikes_df <- nyc_bikes %>%
 
 This report uses a sample of NYC Citi Bike usage data to assess the following questions:
 
-  * What is the pattern of bike hires over time (e.g. within a year, month, week, or day)?
+  * What is the pattern of bike hires over time?
   
-  * Do bike hire patterns differ between bike rider demographics? (e.g. gender, type of trip, age)
+  * Do bike hire patterns differ between bike rider demographics?
+  
+  * What is the geographical spread of the start points of bike hires?
   
   * Any other insights?
   
@@ -71,36 +79,110 @@ This report uses a sample which details the usage of 10 bikes throughout 2018.
 
 The dataset is in the public domain, and contains no person-identifiable information.
 
-**Website:**
+**Link:**
 https://rdrr.io/github/tidyverts/tsibbledata/man/nyc_bikes.html
 
 
 
 # Analysis of the data
 
-## Number of trips per day
+## Pattern of bike hires over time
 
-Add commentary: trend peaks in summer, highest single trips date was ??, 
+**Number of trips per day in 2018**
 
-```{r}
+As might be expected, there are more trips per day in summer than in winter.
+
+This peaked at 47 trips on the 31st of July, while there were a number of dates in Jan-Apr and Nov-Dec when only one trip was recorded.
+
+The moving average shown in red suggests that usage plateaus through the summer months - it might be worth investigating further to see if this has any relation to the availability of bikes (for example, if demand for trips exceeds the number of bikes available).
+
+```{r, warning = F, message = F}
+ #Date with HIGHEST number of trips
+  #nyc_bikes_df %>%
+  #index_by(start_date) %>%
+  #summarise(number_of_trips = n()) %>% 
+  #arrange(desc(number_of_trips)) %>% 
+  #head(1)
+
+# Dates with LOWEST number of trips
+  #nyc_bikes_df %>%
+  #index_by(start_date) %>%
+  #summarise(number_of_trips = n()) %>% 
+  #filter(number_of_trips == 1) 
+```
+
+
+```{r, warning = F, message = F}
+
+# Source data for trips per day
 nyc_bikes_df %>%
   index_by(start_date) %>%
   summarise(number_of_trips = n()) %>% 
+  mutate(
+    trips_moving_average = slide_dbl(
+      number_of_trips,
+      ~ mean(., na.rm = TRUE),
+      .before = 75,
+      .after = 75,
+      .complete = FALSE
+    )
+  ) %>% 
 ggplot() +
   aes(x = start_date, y = number_of_trips) +
-  geom_line(colour = "steel blue") +
-  #theme_minimal() +
+  geom_line(colour = "light grey") +
+  geom_line(aes(y = trips_moving_average), colour = "red") +
+  theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(
-    title = "Number of trips per day",
+    title = "Number of trips per day in 2018 \n",
     x = "",
     y = "Number of trips \n"
   )
 ```
 
+**Number of trips by time of day**
 
-## Number of trips - gender of user
-Add commentary: where gender was recorded, there were many more trips by males:
+Again, this follows a pattern you might expect - there are peaks around typical commuting hours, with usage rising sharply before the morning peak, and tailing off more gradually in the evening.
+
+
+```{r}
+# source data for trips by time of day
+nyc_bikes_df %>%
+  index_by(start_hour_numeric) %>%
+  summarise(number_of_trips = n()) %>% 
+  mutate(
+    trips_moving_average = slide_dbl(
+      number_of_trips,
+      ~ mean(., na.rm = TRUE),
+      .before = 75,
+      .after = 75,
+      .complete = FALSE
+    )
+  ) %>% 
+ggplot() +
+  aes(x = start_hour_numeric, y = number_of_trips) +
+  geom_line(colour = "light grey") +
+  geom_line(aes(y = trips_moving_average), colour = "red") +
+  scale_x_continuous(breaks = 1:24) +
+  theme_minimal() +
+  labs(
+    title = "Number of trips by time of day \n",
+    x = "\n Time (24h)",
+    y = "Number of trips \n"
+  )
+```
+
+## Demographic analysis 
+
+**Total number of trips in 2018 by gender**
+
+The first figure to note is that more than three times as many trips were made by males than females:
+
+
+
+
+
+*Total number of trips in 2018 by gender:*
 
 +--------+-----------------+
 | Gender | Number of trips |
@@ -110,54 +192,135 @@ Add commentary: where gender was recorded, there were many more trips by males:
 | Male   | 3,069           |
 +--------+-----------------+
 
+Note that records where gender was recorded as "Unknown" have been excluded, as I'm not familiar enough with how the data was recorded to be sure if these represent a deliberate choice by the user, or if they represent missing data. 
+
+```{r, warning = F, message = F}
+nyc_summ_gender <- tibble( nyc_bikes_df %>%
+  filter(gender!= "Unknown") %>% 
+  group_by(gender) %>% 
+  summarise(number_of_hires = n()) )
+
+nyc_summ_gender <- nyc_summ_gender %>% 
+  group_by(gender) %>% 
+  summarise(number_of_hires = sum(number_of_hires))
+```
+
+
+**Pattern of bike hires over time by gender**
+
+If we repeat the analysis on usage over the year and by time of day but show separate graphs by gender, we see a broadly similar result - while trips at the start of the year appear higher for females, it should be noted that the number of trips per day are in the low single figures.
+
+This would merit further statistical analysis using a larger sample with more female respondents.
+
 ```{r}
-#nyc_summ_gender <- tibble( nyc_bikes_df %>%
-#  filter(gender!= "Unknown") %>% 
-#  group_by(gender) %>% 
-#  summarise(number_of_hires = n()) )
-#nyc_summ_gender <- nyc_summ_gender %>% 
-#  group_by(gender) %>% 
-#  summarise(number_of_hires = sum(number_of_hires))
-  
+# Source data for trips per day
 nyc_bikes_df %>%
   filter(gender!= "Unknown") %>% 
-  index_by(start_month) %>%
+  index_by(start_date) %>%
   group_by(gender) %>% 
   summarise(number_of_trips = n()) %>% 
+  mutate(
+    trips_moving_average = slide_dbl(
+      number_of_trips,
+      ~ mean(., na.rm = TRUE),
+      .before = 75,
+      .after = 75,
+      .complete = FALSE
+    )
+  ) %>% 
 ggplot() +
-  aes(x = start_month, y = number_of_trips) +
-  geom_col(fill = "steel blue") +
+  aes(x = start_date, y = number_of_trips) +
+  geom_line(colour = "light grey") +
+  geom_line(aes(y = trips_moving_average), colour = "red") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_grid(~gender) +
   labs(
-   # title = "Number of trips per month",
-    x = "\n 2018",
+    title = "Number of trips per day in 2018 \n",
+    x = "",
+    y = "Number of trips \n"
+  ) +
+  facet_grid(~gender)
+```
+
+
+```{r}
+# source data for trips by time of day
+nyc_bikes_df %>%
+  filter(gender!= "Unknown") %>% 
+  index_by(start_hour_numeric) %>%
+  group_by(gender) %>% 
+  summarise(number_of_trips = n()) %>% 
+  mutate(
+    trips_moving_average = slide_dbl(
+      number_of_trips,
+      ~ mean(., na.rm = TRUE),
+      .before = 75,
+      .after = 75,
+      .complete = FALSE
+    )
+  ) %>% 
+ggplot() +
+  aes(x = start_hour_numeric, y = number_of_trips) +
+  geom_line(colour = "light grey") +
+  geom_line(aes(y = trips_moving_average), colour = "red") +
+  scale_x_continuous(breaks = c(3, 6, 9, 12, 15, 18, 21, 24)) +
+  theme_minimal() +
+  labs(
+    title = "Number of trips by time of day \n",
+    x = "\n Time (24h)",
+    y = "Number of trips \n"
+  ) +
+  facet_grid(~gender)
+```
+
+**Number of trips by age of user**
+
+The people who made trips in this sample range in age from 19 to 71 (excluding a couple of people aged over 130, I've assumed these are data entry errors!)
+
+The majority of trips were made by people in the 25-34 age bracket.
+
+
+
+```{r, warning = F, message = F}
+nyc_summ_age_group <- tibble( nyc_bikes_df %>%
+  filter(age < 130) %>% 
+  group_by(age, age_group) %>% 
+  summarise(number_of_trips = n()) )
+
+nyc_summ_age <- nyc_summ_age_group %>% 
+  group_by(age) %>% 
+  summarise(number_of_trips = sum(number_of_trips)) 
+
+#nyc_summ_age %>% 
+#  slice_max(age) 
+
+#nyc_summ_age %>% 
+#  slice_min(age) 
+
+
+```
+
+```{r}
+ggplot(nyc_summ_age_group) +
+  aes(x = age_group, y = number_of_trips) +
+  geom_col(fill = "steel blue") +
+  theme_minimal() +
+  labs(
+    title = "Number of trips in 2018",
+    subtitle = "By age group \n",
+    x = "\n Age group",
     y = "Number of trips \n"
   )
 ```
-## ?check age - is there one 49 year-old who keeps hiring or just general MAMIL behaviour
+
+
+## Geographical spread of the start points of bike hires
+
 ```{r}
 
-
-nyc_bikes_df %>%
-  filter(age < 130) %>% 
-  index_by(age) %>%
-  group_by(gender) %>% 
-  summarise(number_of_hires = n()) %>% 
-ggplot() +
-  aes(x = age, y = number_of_hires) +
-  geom_col(fill = "steel blue") +
-  theme_minimal() 
-
-
 ```
-
 
 
 # Conclusions and key insights
 
 ?address gender imbalance
-
-
-
