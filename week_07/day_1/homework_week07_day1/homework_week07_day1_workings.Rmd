@@ -151,3 +151,16 @@ select(stop_time, start_time) %>%
   mutate(hire_t = stop_time - start_time)
 ```
 
+```{r}
+test <- tibble(nyc_bikes_df %>% 
+  group_by(start_station, start_lat, start_long) %>% 
+  summarise(count = n())
+)
+test <- test %>% 
+  group_by(start_station, start_lat, start_long) %>% 
+  summarise(count = sum(count)) %>% 
+arrange(desc(count))
+
+
+```
+

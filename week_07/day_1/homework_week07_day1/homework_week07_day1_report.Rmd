@@ -13,6 +13,9 @@ library(tsibble)
 library(tsibbledata)
 library(slider)
 library(leaflet)
+library(raster)
+library(sp)
+library(dplyr)
 
 ```
 
@@ -64,7 +67,7 @@ This report uses a sample of NYC Citi Bike usage data to assess the following qu
   
 # Background
 
-## About NYC Citi Bike
+### About NYC Citi Bike
 
 Citi Bike is New York City’s bike share system. Launched in 2013, it has over 140,000 members, and in July 2020 it recorded its 100 millionth trip.
 
@@ -73,7 +76,7 @@ https://www.citibikenyc.com/about
 
 
 
-## About the dataset
+### About the dataset
 
 This report uses a sample which details the usage of 10 bikes throughout 2018.
 
@@ -86,13 +89,11 @@ https://rdrr.io/github/tidyverts/tsibbledata/man/nyc_bikes.html
 
 # Analysis of the data
 
-## Pattern of bike hires over time
+### Pattern of bike hires over time
 
 **Number of trips per day in 2018**
 
-As might be expected, there are more trips per day in summer than in winter.
-
-This peaked at 47 trips on the 31st of July, while there were a number of dates in Jan-Apr and Nov-Dec when only one trip was recorded.
+As might be expected, there are more trips per day in summer than in winter, with a peak of 47 trips on the 31st of July.
 
 The moving average shown in red suggests that usage plateaus through the summer months - it might be worth investigating further to see if this has any relation to the availability of bikes (for example, if demand for trips exceeds the number of bikes available).
 
@@ -109,6 +110,13 @@ The moving average shown in red suggests that usage plateaus through the summer 
   #index_by(start_date) %>%
   #summarise(number_of_trips = n()) %>% 
   #filter(number_of_trips == 1) 
+
+#Total number of trips
+total_trips <- tibble(nyc_bikes_df %>% 
+  summarise(number_of_trips = n())
+)
+total_trips <- total_trips %>% 
+  summarise(number_of_trips = sum(number_of_trips)) 
 ```
 
 
@@ -172,11 +180,11 @@ ggplot() +
   )
 ```
 
-## Demographic analysis 
+### Demographic analysis 
 
 **Total number of trips in 2018 by gender**
 
-The first figure to note is that more than three times as many trips were made by males than females:
+The first figure to note is that more than three times as many trips were made by males than females, which feels like it could be a cause for concern.
 
 
 
@@ -192,7 +200,7 @@ The first figure to note is that more than three times as many trips were made b
 | Male   | 3,069           |
 +--------+-----------------+
 
-Note that records where gender was recorded as "Unknown" have been excluded, as I'm not familiar enough with how the data was recorded to be sure if these represent a deliberate choice by the user, or if they represent missing data. 
+*(Records where gender was recorded as "Unknown" have been excluded, as I'm not familiar enough with how the data was recorded to be sure if these represent a deliberate choice by the user, or if they represent missing data.)* 
 
 ```{r, warning = F, message = F}
 nyc_summ_gender <- tibble( nyc_bikes_df %>%
@@ -208,7 +216,9 @@ nyc_summ_gender <- nyc_summ_gender %>%
 
 **Pattern of bike hires over time by gender**
 
-If we repeat the analysis on usage over the year and by time of day but show separate graphs by gender, we see a broadly similar result - while trips at the start of the year appear higher for females, it should be noted that the number of trips per day are in the low single figures.
+If we repeat the analysis on usage over the year and by time of day but split the results by gender, we see a broadly similar outcome.
+
+While number of trips at the start of the year appear higher for females, it should be noted that the number of trips per day are in the low single figures.
 
 This would merit further statistical analysis using a larger sample with more female respondents.
 
@@ -314,13 +324,81 @@ ggplot(nyc_summ_age_group) +
 ```
 
 
-## Geographical spread of the start points of bike hires
+### Geographical spread of the start points of bike hires
+
+The map below shows the starting point (start station) of all trips in the sample.
+
+The lowest number of trips recorded at a start station was 1, and the highest 434.
+
+Deeper colours indicate a higher number of trips - click on the marker to see the number. 
 
 ```{r}
+
+
+
+# Get distinct list of start stations with number of trips
+start_locations <- tibble(nyc_bikes_df %>% 
+  group_by(start_station, start_lat, start_long) %>% 
+  summarise(number_of_trips = n())
+)
+start_locations <- start_locations %>% 
+  group_by(start_station, start_lat, start_long) %>% 
+  summarise(number_of_trips = sum(number_of_trips)) %>% 
+  arrange(desc(number_of_trips))
+
+
+
+# Create colour scheme for marker based on number of trips
+start_locations <- start_locations %>% 
+  mutate(trips_group = cut(number_of_trips, breaks = c(0, 50, 100, 200, 300, Inf),
+                             labels = c("orange", "light yellow","darkred", "red", "purple"),
+                 include.lowest = TRUE)) 
+
+icons <- awesomeIcons(icon = "whatever",
+                      iconColor = "black",
+                      library = "ion",
+                      markerColor = start_locations$trips_group)
+
+
+
+
+# Data for leaflet
+
+start_data_map <- start_locations %>% 
+  leaflet() %>% 
+  addTiles() %>% 
+  addAwesomeMarkers(lng = ~ start_locations$start_long, 
+             lat = ~ start_locations$start_lat,
+             icon = icons,
+             popup = ~ as.character(start_locations$number_of_trips)
+  )
+start_data_map
+
 
 ```
 
 
-# Conclusions and key insights
+# Key points and suggested further analysis
 
-?address gender imbalance
+**Key Points**
+
+* For this sample of 10 bikes, 4268 trips were made in 2018.
+
+* Over the year, the number of trips per day peaked in summer; daily peaks are seen around typical morning and evening commute times.
+
+* The number of trips made by males was more than three times greater than  the number made by females.
+
+* The age of users ranged from 19 to 71, with most in the 25-34 age bracket.
+
+* The highest number of trips from a start station was 434, and the lowest was 1
+
+
+**Suggested further analysis**
+
+* The proportion of female users is very low, and this low uptake could be a cause for concern - further statistical analysis with a larger sample would be useful. Research into the gender split of users of similar schemes (e.g. Paris, London) may provide insights.
+
+* It would be interesting to see the number of bikes available at peak times such as summer, or during daily peak commute times, to see if capacity meets demand. 
+
+
+
+
