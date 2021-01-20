@@ -164,3 +164,34 @@ arrange(desc(count))
 
 ```
 
+
+```{r}
+# source data for trips by time of day
+nyc_bikes_df %>%
+  index_by(start_hour_numeric) %>%
+  group_by(age_group) %>% 
+  summarise(number_of_trips = n()) %>% 
+  mutate(
+    trips_moving_average = slide_dbl(
+      number_of_trips,
+      ~ mean(., na.rm = TRUE),
+      .before = 75,
+      .after = 75,
+      .complete = FALSE
+    )
+  ) %>% 
+ggplot() +
+  aes(x = start_hour_numeric, y = number_of_trips) +
+  geom_line(colour = "light grey") +
+  geom_line(aes(y = trips_moving_average), colour = "red") +
+  scale_x_continuous(breaks = c(3, 6, 9, 12, 15, 18, 21, 24)) +
+  scale_y_continuous(breaks = c(2, 4, 6, 8)) +
+  theme_minimal() +
+  labs(
+    title = "Number of trips by time of day \n",
+    x = "\n Time (24h)",
+    y = "Number of trips \n"
+  ) +
+  facet_wrap(~age_group)
+```
+

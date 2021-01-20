@@ -95,7 +95,7 @@ https://rdrr.io/github/tidyverts/tsibbledata/man/nyc_bikes.html
 
 As might be expected, there are more trips per day in summer than in winter, with a peak of 47 trips on the 31st of July.
 
-The moving average shown in red suggests that usage plateaus through the summer months - it might be worth investigating further to see if this has any relation to the availability of bikes (for example, if demand for trips exceeds the number of bikes available).
+The average shown in red suggests that usage plateaus through the summer months - it might be worth investigating further to see if this has any relation to the availability of bikes (for example, if demand for trips exceeds the number of bikes available).
 
 ```{r, warning = F, message = F}
  #Date with HIGHEST number of trips
@@ -184,13 +184,12 @@ ggplot() +
 
 **Total number of trips in 2018 by gender**
 
-The first figure to note is that more than three times as many trips were made by males than females, which feels like it could be a cause for concern.
+The first figure to note is that more than three times as many trips were made by males than females, which feels like it should be a cause for concern.
 
 
 
 
 
-*Total number of trips in 2018 by gender:*
 
 +--------+-----------------+
 | Gender | Number of trips |
@@ -200,7 +199,7 @@ The first figure to note is that more than three times as many trips were made b
 | Male   | 3,069           |
 +--------+-----------------+
 
-*(Records where gender was recorded as "Unknown" have been excluded, as I'm not familiar enough with how the data was recorded to be sure if these represent a deliberate choice by the user, or if they represent missing data.)* 
+Records where gender was recorded as "Unknown" have been excluded, as I'm not familiar enough with how the data was recorded to be sure if these represent a deliberate choice by the user, or if they represent missing data. 
 
 ```{r, warning = F, message = F}
 nyc_summ_gender <- tibble( nyc_bikes_df %>%
@@ -216,7 +215,7 @@ nyc_summ_gender <- nyc_summ_gender %>%
 
 **Pattern of bike hires over time by gender**
 
-If we repeat the analysis on usage over the year and by time of day but split the results by gender, we see a broadly similar outcome.
+If we repeat the analysis on usage over the year and by time of day but split the results by gender, we see a broadly similar pattern.
 
 While number of trips at the start of the year appear higher for females, it should be noted that the number of trips per day are in the low single figures.
 
@@ -245,7 +244,8 @@ ggplot() +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(
-    title = "Number of trips per day in 2018 \n",
+    title = "Number of trips per day in 2018 ",
+    subtitle = "By gender \n",
     x = "",
     y = "Number of trips \n"
   ) +
@@ -274,9 +274,11 @@ ggplot() +
   geom_line(colour = "light grey") +
   geom_line(aes(y = trips_moving_average), colour = "red") +
   scale_x_continuous(breaks = c(3, 6, 9, 12, 15, 18, 21, 24)) +
+  scale_y_continuous(breaks = c(2, 4, 6, 8, 10, 12)) +
   theme_minimal() +
   labs(
-    title = "Number of trips by time of day \n",
+    title = "Number of trips by time of day",
+    subtitle = "By gender \n",
     x = "\n Time (24h)",
     y = "Number of trips \n"
   ) +
@@ -323,18 +325,60 @@ ggplot(nyc_summ_age_group) +
   )
 ```
 
+**Pattern of bike hires during the day by age group**
+
+The commuting-hours peaks in activity can be most clearly seen, as might be expected, in the 25-54 age ranges.
+
+Usage amongst other age groups throughout the day is more consistent, but there are a very small number of trips in this sample.
+
+It might be interesting to do further analysis on, for example, the 45-64 age groups, to assess whether anything could be done to encourage uptake,  particularly outside peak hours.
+
+
+```{r}
+# source data for trips by time of day
+nyc_bikes_df %>%
+  index_by(start_hour_numeric) %>%
+  group_by(age_group) %>% 
+  summarise(number_of_trips = n()) %>% 
+  mutate(
+    trips_moving_average = slide_dbl(
+      number_of_trips,
+      ~ mean(., na.rm = TRUE),
+      .before = 25,
+      .after = 25,
+      .complete = FALSE
+    )
+  ) %>% 
+ggplot() +
+  aes(x = start_hour_numeric, y = number_of_trips) +
+  geom_line(colour = "light grey") +
+  geom_line(aes(y = trips_moving_average), colour = "red") +
+  scale_x_continuous(breaks = c(3, 6, 9, 12, 15, 18, 21, 24)) +
+  scale_y_continuous(breaks = c(2, 4, 6, 8)) +
+  theme_minimal() +
+  labs(
+    title = "Number of trips by time of day",
+    subtitle = "By age group \n",
+    x = "\n Time (24h)",
+    y = "Number of trips \n"
+  ) +
+  facet_wrap(~age_group)
+```
+
 
 ### Geographical spread of the start points of bike hires
 
 The map below shows the starting point (start station) of all trips in the sample.
 
-The lowest number of trips recorded at a start station was 1, and the highest 434.
+Deeper colours indicate a higher number of trips - click on the marker to see the number.
 
-Deeper colours indicate a higher number of trips - click on the marker to see the number. 
+The highest number of trips recorded at a start station was 434, the lowest was 1.
+
+
+
+ 
 
 ```{r}
-
-
 
 # Get distinct list of start stations with number of trips
 start_locations <- tibble(nyc_bikes_df %>% 
@@ -348,7 +392,7 @@ start_locations <- start_locations %>%
 
 
 
-# Create colour scheme for marker based on number of trips
+# Create colour scheme for markers based on number of trips
 start_locations <- start_locations %>% 
   mutate(trips_group = cut(number_of_trips, breaks = c(0, 50, 100, 200, 300, Inf),
                              labels = c("orange", "light yellow","darkred", "red", "purple"),
@@ -363,7 +407,6 @@ icons <- awesomeIcons(icon = "whatever",
 
 
 # Data for leaflet
-
 start_data_map <- start_locations %>% 
   leaflet() %>% 
   addTiles() %>% 
@@ -378,7 +421,7 @@ start_data_map
 ```
 
 
-# Summary - key points and suggested further analysis
+# Summary: key points and suggested further analysis
 
 **Key Points**
 
@@ -390,6 +433,8 @@ start_data_map
 
 * The age of users ranged from 19 to 71, with most in the 25-34 age bracket.
 
+* The number of trips made by users outside the 25-54 age groups is low, but is fairly consistent throughout the day.
+
 * The highest number of trips from a start station was 434, and the lowest was 1
 
 
@@ -398,6 +443,8 @@ start_data_map
 * The proportion of female users is very low, and this low uptake could be a cause for concern - further statistical analysis with a larger sample would be useful. Research into the gender split of users of similar schemes (e.g. Paris, London) may provide insights.
 
 * It would be interesting to see the number of bikes available at peak times such as summer, or during daily peak commute times, to see if capacity meets demand. 
+
+* It would be interesting to conduct further analysis on the 45-64 age groups to assess whether anything could be done to encourage uptake, particularly outside peak hours when there is likely to be unused capacity in the system.
 
 
 
