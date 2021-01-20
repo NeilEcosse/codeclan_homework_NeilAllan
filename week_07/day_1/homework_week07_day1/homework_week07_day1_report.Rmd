@@ -52,7 +52,7 @@ nyc_bikes_df <- nyc_bikes %>%
   )
 ```
 
-# Overview
+# Introduction
 
 This report uses a sample of NYC Citi Bike usage data to assess the following questions:
 
@@ -63,6 +63,8 @@ This report uses a sample of NYC Citi Bike usage data to assess the following qu
   * What is the geographical spread of the start points of bike hires?
   
   * Any other insights?
+  
+The report gives a broad overview of activity over the year and by time of day, and highlights areas which might benefit from more in-depth analysis. 
   
   
 # Background
@@ -325,6 +327,41 @@ ggplot(nyc_summ_age_group) +
   )
 ```
 
+**Pattern of bike hires over the year by age group**
+
+We can clearly see the summer peak in the 25-54 age groups; the number of trips in other age groups is too small to draw any firm conclusions.
+
+```{r}
+# Source data for trips per day
+nyc_bikes_df %>%
+  index_by(start_date) %>%
+  group_by(age_group) %>% 
+  summarise(number_of_trips = n()) %>% 
+  mutate(
+    trips_moving_average = slide_dbl(
+      number_of_trips,
+      ~ mean(., na.rm = TRUE),
+      .before = 75,
+      .after = 75,
+      .complete = FALSE
+    )
+  ) %>% 
+ggplot() +
+  aes(x = start_date, y = number_of_trips) +
+  geom_line(colour = "light grey") +
+  geom_line(aes(y = trips_moving_average), colour = "red") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    title = "Number of trips per day in 2018 ",
+    subtitle = "By age group \n",
+    x = "",
+    y = "Number of trips \n"
+  ) +
+  facet_wrap(~age_group)
+```
+
+
 **Pattern of bike hires during the day by age group**
 
 The commuting-hours peaks in activity can be most clearly seen, as might be expected, in the 25-54 age ranges.
@@ -445,6 +482,8 @@ start_data_map
 * It would be interesting to see the number of bikes available at peak times such as summer, or during daily peak commute times, to see if capacity meets demand. 
 
 * It would be interesting to conduct further analysis on the 45-64 age groups to assess whether anything could be done to encourage uptake, particularly outside peak hours when there is likely to be unused capacity in the system.
+
+* It would be interesting to see any available data on purpose of trip (e.g. leisure or commuting) and check usage/capacity over time for these variables.
 
 
 
