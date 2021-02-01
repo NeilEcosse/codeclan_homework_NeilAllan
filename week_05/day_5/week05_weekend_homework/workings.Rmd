@@ -1,0 +1,14 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+children_bmi_hb %>% 
+ filter(hb_name == "Ayrshire and Arran",
+        gender == "Male",
+        end_year == 2019)
+```
+
