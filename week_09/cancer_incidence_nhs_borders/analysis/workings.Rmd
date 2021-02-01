@@ -1,0 +1,71 @@
+---
+title: "Workings - initial analysis before creating report"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+
+```{r}
+cancer_incidence_data <- 
+ read_csv(here("data_clean/cancer_incidence_data.csv"))
+```
+
+
+# cancer type by time
+```{r}
+cancer_incidence_data %>% 
+  filter(hb_name == "NHS Borders") %>% 
+  filter(sex == "All") %>% 
+  group_by(hb_name, cancer_site, year) %>% 
+  summarise(total_incidences_all_ages = sum(incidences_all_ages)) %>% 
+  ggplot() +
+  aes(x = year, y = total_incidences_all_ages) +
+  geom_line() +
+  #theme_minimal() +
+  scale_x_continuous(breaks = (min(cancer_incidence_data$year):max(cancer_incidence_data$year))) +
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle = 45)) +
+  facet_wrap(~cancer_site)
+  
+```
+
+# summary all types
+```{r}
+cancer_incidence_data %>% 
+  filter(hb_name == "NHS Borders") %>% 
+  filter(cancer_site == "All cancer types") %>%
+  filter(sex == "All") %>% 
+  group_by(hb_name, year) %>% 
+  summarise(total_incidences_all_ages = sum(incidences_all_ages)) %>% 
+  ggplot() +
+  aes(x = year, y = total_incidences_all_ages) +
+  geom_line() +
+  #theme_minimal() +
+  scale_x_continuous(breaks = (min(cancer_incidence_data$year):max(cancer_incidence_data$year))) +
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle=45,hjust=1)) 
+```
+# summary type all years
+
+```{r}
+cancer_incidence_data %>% 
+  filter(hb_name == "NHS Borders") %>% 
+  filter(cancer_site != "All cancer types") %>% 
+  filter(sex == "All") %>% 
+  group_by(hb_name, cancer_site) %>% 
+  summarise(total_incidences_all_ages = sum(incidences_all_ages)) %>% 
+  ggplot() +
+  aes(x = reorder(cancer_site, -total_incidences_all_ages), y = total_incidences_all_ages) +
+  geom_col() +
+  #theme_minimal() +
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle=45,hjust=1)) 
+```
+
+
