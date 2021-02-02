@@ -219,6 +219,24 @@ cancer_incidence_data %>%
 
 
 ```{r}
+cancer_incidence_data %>% 
+  filter(hb_name == "NHS Borders") %>% 
+  filter(cancer_site == "All cancer types") %>%
+  filter(year == 1994 | year == 2017) %>% 
+  filter(sex == "All") %>% 
+  group_by(hb_name, year) %>% 
+  summarise(total_incidences_all_ages = sum(incidences_all_ages))
+```
+```{r}
+population_estimates %>% 
+  filter(area_name == "Borders") %>% 
+  filter(gender == "All") %>%
+  filter(year == 1994 | year == 2018) %>% 
+  group_by(area_name, year) %>% 
+  summarise(population_estimate = sum(population_estimate))
+```
+
+```{r}
 
 ```
 

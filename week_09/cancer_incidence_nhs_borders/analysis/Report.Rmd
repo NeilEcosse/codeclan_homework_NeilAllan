@@ -2,6 +2,7 @@
 output:
   html_document:
     code_folding: hide
+  html_notebook: default
 ---
 ```{r, warning = F, message = F}
 library(tidyverse)
@@ -29,22 +30,24 @@ This report uses publicly available data to give an insight into the incidence o
 
 It gives an overview of the following:
 
-1. How has the population changed over time?
+* How has the population changed over time?
 
-2. How has the number of cancer cases changes over time?
+* How has the number of cancer cases changed over time?
 
-3. What is the impact of the age of our residents?
+* What types of cancer are most prevalent in the region?
 
-4. What types of cancer are most prevalent in the region?
+* What is the impact of the age of our residents?
+
+
 
 The sources of figures used in the report are listed in the *references* section
 
 
-## 1. How has the population changed over time?
+## How has the population changed over time?
 
 The graph below for the period 1994-2018 shows how the population has increased - note that there was a particularly steep rise between 1999 and 2008.
 
-```{r}
+```{r, warning = F, message = F}
 population_estimates %>% 
   filter(area_name == "Borders") %>% 
   filter(gender == "All") %>%
@@ -66,7 +69,7 @@ population_estimates %>%
   )
 ```
 
-## 2. How has the number of cancer cases changes over time?
+## How has the number of cancer cases changed over time?
 
 This graph shows how cancer cases have risen in the same period:
 
@@ -89,15 +92,43 @@ cancer_incidence_data %>%
     title = "Incidence of all cancer types over time",
     subtitle = "NHS Borders 1994-2018 \n",
     x = "\n Year",
-    y = "Number of instances (all ages) \n"
+    y = "Number of instances \n"
   )
 ```
 
-## 3. What is the impact of the age of our residents?
+## What types of cancer are most prevalent in the region?
 
-The relative numbers of older people in The Borders is projected to rise, which will have an impact on the types and capacity of services which NHS will need to offer, including cancer services.
+The graph below gives a summary of the most common types of cancer: for the period 1994-2018, it shows totals for the cancer sites where at least 500 instances were recorded (13 of the 41 cancer types recorded).
 
-To illustrate this changing demographic, the graph below shows:
+```{r, warning = F, message = F}
+cancer_incidence_data %>% 
+  filter(hb_name == "NHS Borders") %>% 
+  filter(cancer_site != "All cancer types") %>% 
+  filter(sex == "All") %>%
+  group_by(hb_name, cancer_site) %>% 
+  summarise(total_incidences_all_ages = sum(incidences_all_ages)) %>% 
+  filter(total_incidences_all_ages >=500) %>% 
+  ggplot() +
+  aes(x = reorder(cancer_site, -total_incidences_all_ages), y = total_incidences_all_ages) +
+  # NHS colours: https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/
+  geom_col(fill = "#005EB8") +
+  #theme_minimal() +
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle=45,hjust=1)) +
+    labs(
+    title = "Number of instances by cancer site",
+    subtitle = "NHS Borders 1994-2018 \n",
+    x = "\n Cancer site",
+    y = "Number of instances \n",
+    colour = ""
+  )
+```
+
+## What is the impact of the age of our residents?
+
+The relative proportion of older people in The Borders is projected to rise, which will have an impact on the types and capacity of services which NHS will need to offer, including cancer services.
+
+To illustrate this changing demographic, the graph of cancer instances below shows:
 
 *  **The crude rate:** This is calculated as the number of instances per 100,000 people.
 
@@ -105,11 +136,11 @@ To illustrate this changing demographic, the graph below shows:
 
 The age-standardised rate should not be affected by any changes in the distribution of the population by age.
 
-What you can see in this graph is that from 2009 onward, the crude rate exceeds the age-standardised rate - this gives an indication that the actual population of The Borders is older than the standardised.
+What you can see in this graph is that from 2009 onward, the crude rate exceeds the age-standardised rate - this higher number of cancer cases gives an indication that the actual population of The Borders is older than the standardised version.
 
-This means there are now proportionally more people in older age groups who are more likely to develop many cancers; this trend is projected to continue, and cancer services in The Borders will need to increase provision to treat and support these patients.
+This means there are now proportionally more people in older age groups, who are more likely to develop cancer; estimates published by National Records of Scotland *(see reference section below)* anticipate that this trend will continue, so cancer services in The Borders will need to increase provision to treat and support these patients.
 
-```{r}
+```{r, warning = F, message = F}
 # Crude rate
 crude_rate <- cancer_incidence_data %>% 
   filter(hb_name == "NHS Borders") %>% 
@@ -137,7 +168,6 @@ rm(crude_rate, european_standardised_rate)
  compare_rates %>%  
   ggplot() +
   aes(x = year, y = rate, group  = measure, colour = measure  ) +
-  # NHS colours: https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/
   geom_line(size  = 2) +
   theme_minimal() +
   scale_x_continuous(breaks = (min(cancer_incidence_data$year):max(cancer_incidence_data$year))) +
@@ -154,10 +184,57 @@ rm(crude_rate, european_standardised_rate)
     title = "Crude rate vs European age-standardised rate",
     subtitle = "NHS Borders 1994-2018 \n",
     x = "\n Year",
-    y = "Cases per 100,000 \n",
+    y = "Instances all cancers per 100,000 \n",
     colour = ""
   )
 
 ```
+
+## Summary of key points
+
+For the NHS Borders region during the period 1994-2018:
+
+  * The population rose from 105,450 in 1994 to 115,270 in 2018
+  
+  * The number of cancer instances recorded has also tended to increase over time - the lowest annual total was 518 in 1994, and the highest was 912 in 2017
+  
+  * The five cancer sites with the most instances were:
+  
+    * Non-melanoma skin cancer
+    
+    * Basal cell carcinoma of the skin
+    
+    * Breast
+    
+    * Trachea, bronchus and lung
+    
+    * Colorectal cancer
+  
+  * The proportion of older people in the population rose, and this trend is projected to continue
+    
+  
+    
+
+ 
+   
+
+
+## References
+
+**Data on cancer instances over time:** https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014
+
+**Population estimate data: ** https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/population/population-estimates/mid-year-population-estimates/population-estimates-time-series-data
+
+**Scottish Borders population trends:** https://www.nrscotland.gov.uk/files/statistics/council-area-data-sheets/scottish-borders-council-profile.html
+
+**Definitions of crude and standardised rates:** https://ecis.jrc.ec.europa.eu/info/glossary.html
+
+**Example of using age-standardised rates:** https://www.nrscotland.gov.uk/files//statistics/age-standardised-death-rates-esp/2017/age-standardised-17-methodology.pdf
+
+**Health Board names reference data:** https://www.opendata.nhs.scot/dataset/9f942fdb-e59e-44f5-b534-d6e17229cc7b/resource/652ff726-e676-4a20-abda-435b98dd7bdc/download/geography_codes_and_labels_hb2014_01042019.csv
+
+
+
+
 
 
