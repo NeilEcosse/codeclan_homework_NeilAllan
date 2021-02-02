@@ -1,0 +1,41 @@
+---
+output:
+  html_document:
+    code_folding: hide
+---
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+```{r}
+cancer_incidence_data <- 
+ read_csv(here("data_clean/cancer_incidence_data.csv"))
+
+population_estimates <- 
+ read_csv(here("data_clean/population_estimates.csv"))
+
+data_dictionary <- read_csv(here("data_raw/data_dictionary.csv")) 
+```
+
+
+# Incidence of cancer in NHS Borders
+
+## Background
+
+This report uses publicly available data to give an insight into the incidence of cancer in the NHS Borders area.
+
+It gives an overview of the following:
+
+* How has the number of cancer cases changes over time?
+
+* How has the population changed over time?
+
+* What is the impact of the age of our residents?
+
+* What types of cancer are most prevalent in the region?
+
+
+## 1. How has the number of cancer cases changes over time?
+
