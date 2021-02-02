@@ -52,3 +52,35 @@ write_csv(cancer_incidence_data, here("data_clean/cancer_incidence_data.csv"))
 
 # Drop data items from environment
 rm(cancer_incidence_data, geography_codes_labels)
+
+
+
+
+
+
+# Read in population estimate data
+population_estimates <- 
+  read_csv(here("data_raw/mid_year_pop_est_19_time_series_4_1981_2019.csv"))
+
+# Pivot wider - create year and population_estimate columns
+population_estimates <- population_estimates %>% 
+  pivot_longer(cols = "1981":"2019",
+               names_to = "year",
+               values_to = "population_estimate",)
+
+# Save population output as csv in clean_data folder
+write_csv(population_estimates, here("data_clean/population_estimates.csv"))
+
+# Drop population data item from environment
+rm(population_estimates)
+
+
+# Read in data dictionary
+data_dictionary <- 
+  read_csv(here("data_raw/data_dictionary.csv"))
+
+# Save data dictionary as csv in clean_data folder
+write_csv(data_dictionary, here("data_clean/data_dictionary.csv"))
+
+# Drop data dictionary data item from environment
+rm(data_dictionary)

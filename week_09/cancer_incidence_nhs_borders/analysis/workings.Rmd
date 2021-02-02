@@ -1,6 +1,8 @@
 ---
 title: "Workings - initial analysis before creating report"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 
@@ -9,6 +11,30 @@ library(tidyverse)
 library(janitor)
 library(here)
 ```
+
+
+```{r}
+data_dictionary <- read_csv(here("data_raw/data_dictionary.csv")) 
+```
+
+population estimates:
+
+"Mid-year population estimates: Scotland and its NHS Board areas, total population by sex: 1981 to 2019"
+
+https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/population/population-estimates/mid-year-population-estimates/population-estimates-time-series-data
+
+"1) Population estimates from years 1981 to 2018 are based on the 2014 Health Board boundaries and 2019 is based on the 2019 Health Board boundaries. 
+
+"
+
+The 2019 areas differ from the previous areas due to a boundary change at Cardowan by Stepps, between Greater Glasgow and Clyde and Lanarkshire health board areas. The boundary change resulted in approximately 400 people transferring from Greater Glasgow and Clyde to Lanarkshire. These moves have been accounted for as migration within Scotland.
+
+
+```{r}
+population_estimates <- 
+ read_csv(here("data_clean/population_estimates.csv"))
+```
+
 
 
 ```{r}
@@ -45,27 +71,154 @@ cancer_incidence_data %>%
   summarise(total_incidences_all_ages = sum(incidences_all_ages)) %>% 
   ggplot() +
   aes(x = year, y = total_incidences_all_ages) +
-  geom_line() +
-  #theme_minimal() +
+  # NHS colours: https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/
+  geom_line(colour = "#005EB8", size  = 2) +
+  theme_minimal() +
   scale_x_continuous(breaks = (min(cancer_incidence_data$year):max(cancer_incidence_data$year))) +
   scale_y_continuous(labels = scales::comma) +
-  theme(axis.text.x = element_text(angle=45,hjust=1)) 
+  theme(axis.text.x = element_text(angle=45,hjust=1)) +
+  labs(
+    title = "Incidence of all cancer types over time",
+    subtitle = "NHS Borders 1994-2018 \n",
+    x = "\n Year",
+    y = "Number of instances (all ages) \n"
+  )
 ```
+ # Population over time
+ 
+```{r}
+population_estimates %>% 
+  filter(area_name == "Borders") %>% 
+  filter(gender == "All") %>%
+  filter(year >= 1994 & year <= 2018) %>% 
+  group_by(area_name, year) %>% 
+  summarise(population_estimate = sum(population_estimate)) %>% 
+  ggplot() +
+  aes(x = year, y = population_estimate) +
+  geom_line(colour = "#005EB8", size  = 2) +
+  theme_minimal() +
+  scale_x_continuous(breaks = 1994:2018) +
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle=45,hjust=1)) +
+    labs(
+    title = "Mid-year population estimate over time",
+    subtitle = "NHS Borders 1994-2018 \n",
+    x = "\n Year",
+    y = "Population estimate \n"
+  )
+```
+ 
+# compare rates
+This is the rate that would have been found if the population of Ireland had the same age-composition (proportion of total population in each five year age class) as a hypothetical European population, known as the European Standard Population (ESP). The ESP used here is that which was introduced in 1976a and shown in the table below.
+
+The rates are calculated by applying the age-specific rates for the location being studied to a theoretical European standard population, usually expressed per 100,000 persons per year.
+
+https://ecis.jrc.ec.europa.eu/info/glossary.html
+ 
+```{r}
+# Crude rate
+crude_rate <- cancer_incidence_data %>% 
+  filter(hb_name == "NHS Borders") %>% 
+  filter(cancer_site == "All cancer types") %>%
+  filter(sex == "All") %>% 
+  mutate(measure = "Crude rate",
+         rate = crude_rate) %>% 
+  select(hb_name, year, measure, rate) 
+# European age-standardised rate
+european_standardised_rate <- cancer_incidence_data %>% 
+  filter(hb_name == "NHS Borders") %>% 
+  filter(cancer_site == "All cancer types") %>%
+  filter(sex == "All") %>% 
+  mutate(measure = "European age-standardised rate",
+         rate = easr) %>% 
+  select(hb_name, year, measure, rate)  
+
+# put these two datasets together
+compare_rates <- 
+bind_rows(crude_rate, european_standardised_rate)
+
+# drop intermediate tables
+rm(crude_rate, european_standardised_rate)
+
+ compare_rates %>%  
+  ggplot() +
+  aes(x = year, y = rate, group  = measure, colour = measure  ) +
+  # NHS colours: https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/
+  geom_line(size  = 2) +
+  theme_minimal() +
+  scale_x_continuous(breaks = (min(cancer_incidence_data$year):max(cancer_incidence_data$year))) +
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle=45,hjust=1)) +
+   theme(legend.position="bottom") +
+     scale_fill_manual(
+    values = c(
+      "Crude Rate" = "#005EB8",
+      "European age-standardised rate" = "#00A9CE"
+     )
+    ) +
+  labs(
+    title = "Crude rate vs European age-standardised rate",
+    subtitle = "NHS Borders 1994-2018 \n",
+    x = "\n Year",
+    y = "Cases per 100,000 \n",
+    colour = ""
+  )
+```
+
+
+
 # summary type all years
 
 ```{r}
 cancer_incidence_data %>% 
   filter(hb_name == "NHS Borders") %>% 
   filter(cancer_site != "All cancer types") %>% 
-  filter(sex == "All") %>% 
+  filter(sex == "All") %>%
   group_by(hb_name, cancer_site) %>% 
   summarise(total_incidences_all_ages = sum(incidences_all_ages)) %>% 
+  filter(total_incidences_all_ages >=500) %>% 
   ggplot() +
   aes(x = reorder(cancer_site, -total_incidences_all_ages), y = total_incidences_all_ages) +
+  geom_col(fill = "#005EB8") +
+  #theme_minimal() +
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle=45,hjust=1)) 
+```
+
+# data all cancer types in period
+```{r}
+cancer_incidence_data %>% 
+  filter(hb_name == "NHS Borders") %>% 
+  filter(cancer_site != "All cancer types") %>% 
+  filter(sex == "All") %>%
+  group_by(cancer_site) %>% 
+  summarise(total_incidences_all_ages = sum(incidences_all_ages)) %>% 
+  arrange(desc(total_incidences_all_ages))
+```
+
+
+crude rate for 2018
+```{r}
+cancer_incidence_data %>% 
+  filter(hb_name == "NHS Borders") %>% 
+  filter(cancer_site != "All cancer types") %>% 
+  filter(year == 2018) %>%
+  filter(sex == "All") %>% 
+  select(cancer_site, crude_rate) %>% 
+  ggplot() +
+  aes(x = reorder(cancer_site, -crude_rate), y = crude_rate) +
   geom_col() +
   #theme_minimal() +
   scale_y_continuous(labels = scales::comma) +
   theme(axis.text.x = element_text(angle=45,hjust=1)) 
 ```
 
+
+
+
+
+
+```{r}
+
+```
 
