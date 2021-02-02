@@ -59,6 +59,8 @@ rm(cancer_incidence_data, geography_codes_labels)
 
 
 # Read in population estimate data
+# Downloaded from: https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/population/population-estimates/mid-year-population-estimates/population-estimates-time-series-data
+
 population_estimates <- 
   read_csv(here("data_raw/mid_year_pop_est_19_time_series_4_1981_2019.csv"))
 
