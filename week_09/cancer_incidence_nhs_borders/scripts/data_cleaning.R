@@ -56,8 +56,6 @@ rm(cancer_incidence_data, geography_codes_labels)
 
 
 
-
-
 # Read in population estimate data
 # Downloaded from: https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/population/population-estimates/mid-year-population-estimates/population-estimates-time-series-data
 
@@ -75,6 +73,7 @@ write_csv(population_estimates, here("data_clean/population_estimates.csv"))
 
 # Drop population data item from environment
 rm(population_estimates)
+
 
 
 # Read in data dictionary

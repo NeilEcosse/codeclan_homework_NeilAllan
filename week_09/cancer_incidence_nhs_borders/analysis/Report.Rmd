@@ -27,9 +27,9 @@ data_dictionary <- read_csv(here("data_raw/data_dictionary.csv"))
 
 ## <span style="color:#005EB8">Overview</span>
 
-This report uses publicly available data to give an insight into the incidence of cancer in the NHS Borders area.
+This report uses publicly available data to give a high-level insight into the incidence of cancer in the NHS Borders area.
 
-It gives an overview of the following:
+It looks at the following questions:
 
 * How has the population changed over time?
 
@@ -93,13 +93,13 @@ cancer_incidence_data %>%
     title = "Incidence of all cancer types over time",
     subtitle = "NHS Borders 1994-2018 \n",
     x = "\n Year",
-    y = "Number of instances \n"
+    y = "Number of cases \n"
   )
 ```
 
 ## <span style="color:#005EB8">What types of cancer are most prevalent in the region?</span>
 
-The graph below gives a summary of the most common types of cancer: for the period 1994-2018, it shows totals for the cancer sites where at least 500 instances were recorded (13 of the 41 cancer types recorded).
+The graph below gives a summary of the most common types of cancer: for the period 1994-2018, it shows totals for the cancer sites where at least 500 cases were recorded (13 of the 41 cancer types recorded).
 
 ```{r, warning = F, message = F}
 cancer_incidence_data %>% 
@@ -117,10 +117,10 @@ cancer_incidence_data %>%
   scale_y_continuous(labels = scales::comma) +
   theme(axis.text.x = element_text(angle=45,hjust=1)) +
     labs(
-    title = "Number of instances by cancer site",
+    title = "Number of cases by cancer site",
     subtitle = "NHS Borders 1994-2018 \n",
     x = "\n Cancer site",
-    y = "Number of instances \n",
+    y = "Number of cases \n",
     colour = ""
   )
 ```
@@ -129,9 +129,9 @@ cancer_incidence_data %>%
 
 The relative proportion of older people in The Borders is projected to rise, which will have an impact on the types and capacity of services which the NHS will need to offer, including cancer services.
 
-To illustrate this changing demographic, the graph of cancer instances below shows:
+To illustrate this changing demographic, the graph of cancer cases below shows:
 
-*  <span style="color:#00A9CE">**The crude rate:**</span> This is calculated as the number of instances per 100,000 people.
+*  <span style="color:#00A9CE">**The crude rate:**</span> This is calculated as the number of cases per 100,000 people.
 
 * <span style="color:#003087">**The European age-standardised rate:**</span> This is the rate that would have been found if the population of The Borders had the same age-composition (proportion of total population in each five year age class) as a hypothetical European population, known as the *2013 European Standard Population*.
 
@@ -139,7 +139,7 @@ To illustrate this changing demographic, the graph of cancer instances below sho
 
 What you can see in this graph is that from 2009 onward, the crude rate exceeds the age-standardised rate - this higher number of cancer cases gives an indication that the actual population of The Borders is older than the standardised version.
 
-This means there are now proportionally more people in older age groups, who are more likely to develop cancer; estimates published by National Records of Scotland *(see reference section below)* anticipate that this trend will continue, so cancer services in The Borders will need to increase provision to treat and support these patients.
+There are now proportionally more people in older age groups, who are more likely to develop cancer; estimates published by National Records of Scotland *(see reference section below)* anticipate that this trend will continue, so cancer services in The Borders will need to increase provision to treat and support these patients.
 
 ```{r, warning = F, message = F}
 # Crude rate
@@ -185,7 +185,7 @@ rm(crude_rate, european_standardised_rate)
     title = "Crude rate vs European age-standardised rate",
     subtitle = "NHS Borders 1994-2018 \n",
     x = "\n Year",
-    y = "Instances all cancers per 100,000 \n",
+    y = "Number of cases all cancers per 100,000 \n",
     colour = ""
   )
 
@@ -197,9 +197,9 @@ For the NHS Borders region during the period 1994-2018:
 
   * The population rose from 105,450 in 1994 to 115,270 in 2018
   
-  * The number of cancer instances recorded has also tended to increase over time - the lowest annual total was 518 in 1994, and the highest was 912 in 2017
+  * The number of cancer cases recorded has also tended to increase over time - the lowest annual total was 518 in 1994, and the highest was 912 in 2017
   
-  * The five cancer sites with the most instances were:
+  * The five cancer sites with the most cases were:
   
     * Non-melanoma skin cancer
     
@@ -222,7 +222,7 @@ For the NHS Borders region during the period 1994-2018:
 
 ### <span style="color:#005EB8">References</span>
 
-**Data on cancer instances over time:** https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014
+**Data on cancer instance over time:** https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014
 
 **Population estimate data: ** https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/population/population-estimates/mid-year-population-estimates/population-estimates-time-series-data
 
