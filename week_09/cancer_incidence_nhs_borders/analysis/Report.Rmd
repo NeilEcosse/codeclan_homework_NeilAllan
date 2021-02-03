@@ -113,7 +113,7 @@ cancer_incidence_data %>%
   aes(x = reorder(cancer_site, -total_incidences_all_ages), y = total_incidences_all_ages) +
   # NHS colours: https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/
   geom_col(fill = "#005EB8") +
-  #theme_minimal() +
+  theme_minimal() +
   scale_y_continuous(labels = scales::comma) +
   theme(axis.text.x = element_text(angle=45,hjust=1)) +
     labs(
@@ -127,7 +127,7 @@ cancer_incidence_data %>%
 
 ## <span style="color:#005EB8">What is the impact of the age of our residents?</span>
 
-The relative proportion of older people in The Borders is projected to rise, which will have an impact on the types and capacity of services which NHS will need to offer, including cancer services.
+The relative proportion of older people in The Borders is projected to rise, which will have an impact on the types and capacity of services which the NHS will need to offer, including cancer services.
 
 To illustrate this changing demographic, the graph of cancer instances below shows:
 
