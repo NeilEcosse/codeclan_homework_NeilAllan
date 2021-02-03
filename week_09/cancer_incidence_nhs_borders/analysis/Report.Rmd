@@ -133,7 +133,7 @@ To illustrate this changing demographic, the graph of cancer instances below sho
 
 *  <span style="color:#00A9CE">**The crude rate:**</span> This is calculated as the number of instances per 100,000 people.
 
-* <span style="color:#003087">**The European age-standardised rate:**</span> This is the rate that would have been found if the population of The Borders had the same age-composition (proportion of total population in each five year age class) as a hypothetical European population, known as the *European Standard Population*.
+* <span style="color:#003087">**The European age-standardised rate:**</span> This is the rate that would have been found if the population of The Borders had the same age-composition (proportion of total population in each five year age class) as a hypothetical European population, known as the *2013 European Standard Population*.
 
 **The age-standardised rate should not be affected by any changes in the distribution of the population by age.**
 
