@@ -3,6 +3,7 @@ output:
   html_document:
     code_folding: hide
   html_notebook: default
+  pdf_document: default
 ---
 ```{r, warning = F, message = F}
 library(tidyverse)
@@ -22,7 +23,7 @@ data_dictionary <- read_csv(here("data_raw/data_dictionary.csv"))
 
 
 
-# <span style="color:#005EB8">Incidence of cancer in NHS Borders</span>
+# <span style="color:#005EB8">Incidence of cancer in the NHS Borders area</span>
 
 ## <span style="color:#005EB8">Overview</span>
 

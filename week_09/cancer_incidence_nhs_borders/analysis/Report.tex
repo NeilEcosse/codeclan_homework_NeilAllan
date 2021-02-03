@@ -1,0 +1,401 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\KeywordTok{library}\NormalTok{(janitor)}
+\KeywordTok{library}\NormalTok{(here)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cancer_incidence_data <-}\StringTok{ }
+\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\KeywordTok{here}\NormalTok{(}\StringTok{"data_clean/cancer_incidence_data.csv"}\NormalTok{))}
+
+\NormalTok{population_estimates <-}\StringTok{ }
+\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\KeywordTok{here}\NormalTok{(}\StringTok{"data_clean/population_estimates.csv"}\NormalTok{))}
+
+\NormalTok{data_dictionary <-}\StringTok{ }\KeywordTok{read_csv}\NormalTok{(}\KeywordTok{here}\NormalTok{(}\StringTok{"data_raw/data_dictionary.csv"}\NormalTok{)) }
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{incidence-of-cancer-in-nhs-borders}{%
+\section{\texorpdfstring{{Incidence of cancer in NHS
+Borders}}{Incidence of cancer in NHS Borders}}\label{incidence-of-cancer-in-nhs-borders}}
+
+\hypertarget{overview}{%
+\subsection{\texorpdfstring{{Overview}}{Overview}}\label{overview}}
+
+This report uses publicly available data to give an insight into the
+incidence of cancer in the NHS Borders area.
+
+It gives an overview of the following:
+
+\begin{itemize}
+\item
+  How has the population changed over time?
+\item
+  How has the number of cancer cases changed over time?
+\item
+  What types of cancer are most prevalent in the region?
+\item
+  What is the impact of the age of our residents?
+\end{itemize}
+
+The sources of figures used in the report are listed in the
+\emph{references} section
+
+\hypertarget{how-has-the-population-changed-over-time}{%
+\subsection{\texorpdfstring{{How has the population changed over
+time?}}{How has the population changed over time?}}\label{how-has-the-population-changed-over-time}}
+
+The graph below for the period 1994-2018 shows how the population has
+increased - note that there was a particularly steep rise between 1999
+and 2008.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{population_estimates }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(area_name }\OperatorTok{==}\StringTok{ "Borders"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(gender }\OperatorTok{==}\StringTok{ "All"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(year }\OperatorTok{>=}\StringTok{ }\DecValTok{1994} \OperatorTok{&}\StringTok{ }\NormalTok{year }\OperatorTok{<=}\StringTok{ }\DecValTok{2018}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(area_name, year) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{population_estimate =} \KeywordTok{sum}\NormalTok{(population_estimate)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ year, }\DataTypeTok{y =}\NormalTok{ population_estimate) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\DataTypeTok{colour =} \StringTok{"#005EB8"}\NormalTok{, }\DataTypeTok{size  =} \DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_minimal}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{breaks =} \DecValTok{1994}\OperatorTok{:}\DecValTok{2018}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{labels =}\NormalTok{ scales}\OperatorTok{::}\NormalTok{comma) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle=}\DecValTok{45}\NormalTok{,}\DataTypeTok{hjust=}\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{labs}\NormalTok{(}
+    \DataTypeTok{title =} \StringTok{"Mid-year population estimate over time"}\NormalTok{,}
+    \DataTypeTok{subtitle =} \StringTok{"NHS Borders 1994-2018 }\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+    \DataTypeTok{x =} \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{ Year"}\NormalTok{,}
+    \DataTypeTok{y =} \StringTok{"Population estimate }\CharTok{\textbackslash{}n}\StringTok{"}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\hypertarget{how-has-the-number-of-cancer-cases-changed-over-time}{%
+\subsection{\texorpdfstring{{How has the number of cancer cases changed
+over
+time?}}{How has the number of cancer cases changed over time?}}\label{how-has-the-number-of-cancer-cases-changed-over-time}}
+
+This graph shows how cancer cases have risen in the same period:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cancer_incidence_data }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(hb_name }\OperatorTok{==}\StringTok{ "NHS Borders"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(cancer_site }\OperatorTok{==}\StringTok{ "All cancer types"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(sex }\OperatorTok{==}\StringTok{ "All"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(hb_name, year) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{total_incidences_all_ages =} \KeywordTok{sum}\NormalTok{(incidences_all_ages)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ year, }\DataTypeTok{y =}\NormalTok{ total_incidences_all_ages) }\OperatorTok{+}
+\StringTok{  }\CommentTok{# NHS colours: https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\DataTypeTok{colour =} \StringTok{"#005EB8"}\NormalTok{, }\DataTypeTok{size  =} \DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_minimal}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{breaks =}\NormalTok{ (}\KeywordTok{min}\NormalTok{(cancer_incidence_data}\OperatorTok{$}\NormalTok{year)}\OperatorTok{:}\KeywordTok{max}\NormalTok{(cancer_incidence_data}\OperatorTok{$}\NormalTok{year))) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{labels =}\NormalTok{ scales}\OperatorTok{::}\NormalTok{comma) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle=}\DecValTok{45}\NormalTok{,}\DataTypeTok{hjust=}\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}
+    \DataTypeTok{title =} \StringTok{"Incidence of all cancer types over time"}\NormalTok{,}
+    \DataTypeTok{subtitle =} \StringTok{"NHS Borders 1994-2018 }\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+    \DataTypeTok{x =} \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{ Year"}\NormalTok{,}
+    \DataTypeTok{y =} \StringTok{"Number of instances }\CharTok{\textbackslash{}n}\StringTok{"}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\hypertarget{what-types-of-cancer-are-most-prevalent-in-the-region}{%
+\subsection{\texorpdfstring{{What types of cancer are most prevalent in
+the
+region?}}{What types of cancer are most prevalent in the region?}}\label{what-types-of-cancer-are-most-prevalent-in-the-region}}
+
+The graph below gives a summary of the most common types of cancer: for
+the period 1994-2018, it shows totals for the cancer sites where at
+least 500 instances were recorded (13 of the 41 cancer types recorded).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cancer_incidence_data }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(hb_name }\OperatorTok{==}\StringTok{ "NHS Borders"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(cancer_site }\OperatorTok{!=}\StringTok{ "All cancer types"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(sex }\OperatorTok{==}\StringTok{ "All"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(hb_name, cancer_site) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{summarise}\NormalTok{(}\DataTypeTok{total_incidences_all_ages =} \KeywordTok{sum}\NormalTok{(incidences_all_ages)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(total_incidences_all_ages }\OperatorTok{>=}\DecValTok{500}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \KeywordTok{reorder}\NormalTok{(cancer_site, }\OperatorTok{-}\NormalTok{total_incidences_all_ages), }\DataTypeTok{y =}\NormalTok{ total_incidences_all_ages) }\OperatorTok{+}
+\StringTok{  }\CommentTok{# NHS colours: https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/}
+\StringTok{  }\KeywordTok{geom_col}\NormalTok{(}\DataTypeTok{fill =} \StringTok{"#005EB8"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\CommentTok{#theme_minimal() +}
+\StringTok{  }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{labels =}\NormalTok{ scales}\OperatorTok{::}\NormalTok{comma) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle=}\DecValTok{45}\NormalTok{,}\DataTypeTok{hjust=}\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{labs}\NormalTok{(}
+    \DataTypeTok{title =} \StringTok{"Number of instances by cancer site"}\NormalTok{,}
+    \DataTypeTok{subtitle =} \StringTok{"NHS Borders 1994-2018 }\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+    \DataTypeTok{x =} \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{ Cancer site"}\NormalTok{,}
+    \DataTypeTok{y =} \StringTok{"Number of instances }\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+    \DataTypeTok{colour =} \StringTok{""}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\hypertarget{what-is-the-impact-of-the-age-of-our-residents}{%
+\subsection{\texorpdfstring{{What is the impact of the age of our
+residents?}}{What is the impact of the age of our residents?}}\label{what-is-the-impact-of-the-age-of-our-residents}}
+
+The relative proportion of older people in The Borders is projected to
+rise, which will have an impact on the types and capacity of services
+which NHS will need to offer, including cancer services.
+
+To illustrate this changing demographic, the graph of cancer instances
+below shows:
+
+\begin{itemize}
+\item
+  {\textbf{The crude rate:}} This is calculated as the number of
+  instances per 100,000 people.
+\item
+  {\textbf{The European age-standardised rate:}} This is the rate that
+  would have been found if the population of The Borders had the same
+  age-composition (proportion of total population in each five year age
+  class) as a hypothetical European population, known as the
+  \emph{European Standard Population}.
+\end{itemize}
+
+The age-standardised rate should not be affected by any changes in the
+distribution of the population by age.
+
+What you can see in this graph is that from 2009 onward, the crude rate
+exceeds the age-standardised rate - this higher number of cancer cases
+gives an indication that the actual population of The Borders is older
+than the standardised version.
+
+This means there are now proportionally more people in older age groups,
+who are more likely to develop cancer; estimates published by National
+Records of Scotland \emph{(see reference section below)} anticipate that
+this trend will continue, so cancer services in The Borders will need to
+increase provision to treat and support these patients.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Crude rate}
+\NormalTok{crude_rate <-}\StringTok{ }\NormalTok{cancer_incidence_data }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(hb_name }\OperatorTok{==}\StringTok{ "NHS Borders"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(cancer_site }\OperatorTok{==}\StringTok{ "All cancer types"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(sex }\OperatorTok{==}\StringTok{ "All"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{measure =} \StringTok{"Crude rate"}\NormalTok{,}
+         \DataTypeTok{rate =}\NormalTok{ crude_rate) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(hb_name, year, measure, rate) }
+\CommentTok{# European age-standardised rate}
+\NormalTok{european_standardised_rate <-}\StringTok{ }\NormalTok{cancer_incidence_data }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(hb_name }\OperatorTok{==}\StringTok{ "NHS Borders"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(cancer_site }\OperatorTok{==}\StringTok{ "All cancer types"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(sex }\OperatorTok{==}\StringTok{ "All"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{measure =} \StringTok{"European age-standardised rate"}\NormalTok{,}
+         \DataTypeTok{rate =}\NormalTok{ easr) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(hb_name, year, measure, rate)  }
+
+\CommentTok{# put these two datasets together}
+\NormalTok{compare_rates <-}\StringTok{ }
+\KeywordTok{bind_rows}\NormalTok{(crude_rate, european_standardised_rate)}
+
+\CommentTok{# drop intermediate tables}
+\KeywordTok{rm}\NormalTok{(crude_rate, european_standardised_rate)}
+
+\NormalTok{ compare_rates }\OperatorTok{%>%}\StringTok{  }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ year, }\DataTypeTok{y =}\NormalTok{ rate, }\DataTypeTok{group  =}\NormalTok{ measure, }\DataTypeTok{colour =}\NormalTok{ measure  ) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\DataTypeTok{size  =} \DecValTok{2}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_minimal}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_x_continuous}\NormalTok{(}\DataTypeTok{breaks =}\NormalTok{ (}\KeywordTok{min}\NormalTok{(cancer_incidence_data}\OperatorTok{$}\NormalTok{year)}\OperatorTok{:}\KeywordTok{max}\NormalTok{(cancer_incidence_data}\OperatorTok{$}\NormalTok{year))) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{scale_y_continuous}\NormalTok{(}\DataTypeTok{labels =}\NormalTok{ scales}\OperatorTok{::}\NormalTok{comma) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.x =} \KeywordTok{element_text}\NormalTok{(}\DataTypeTok{angle=}\DecValTok{45}\NormalTok{,}\DataTypeTok{hjust=}\DecValTok{1}\NormalTok{)) }\OperatorTok{+}
+\StringTok{   }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position=}\StringTok{"bottom"}\NormalTok{) }\OperatorTok{+}
+\StringTok{     }\KeywordTok{scale_colour_manual}\NormalTok{(}
+    \DataTypeTok{values =} \KeywordTok{c}\NormalTok{(}
+      \StringTok{"Crude rate"}\NormalTok{ =}\StringTok{ "#00A9CE"}\NormalTok{,}
+      \StringTok{"European age-standardised rate"}\NormalTok{ =}\StringTok{ "#003087"}
+\NormalTok{     )}
+\NormalTok{    ) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}
+    \DataTypeTok{title =} \StringTok{"Crude rate vs European age-standardised rate"}\NormalTok{,}
+    \DataTypeTok{subtitle =} \StringTok{"NHS Borders 1994-2018 }\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+    \DataTypeTok{x =} \StringTok{"}\CharTok{\textbackslash{}n}\StringTok{ Year"}\NormalTok{,}
+    \DataTypeTok{y =} \StringTok{"Instances all cancers per 100,000 }\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{,}
+    \DataTypeTok{colour =} \StringTok{""}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\hypertarget{summary-of-key-points}{%
+\subsection{\texorpdfstring{{Summary of key
+points}}{Summary of key points}}\label{summary-of-key-points}}
+
+For the NHS Borders region during the period 1994-2018:
+
+\begin{itemize}
+\item
+  The population rose from 105,450 in 1994 to 115,270 in 2018
+\item
+  The number of cancer instances recorded has also tended to increase
+  over time - the lowest annual total was 518 in 1994, and the highest
+  was 912 in 2017
+\item
+  The five cancer sites with the most instances were:
+
+  \begin{itemize}
+  \item
+    Non-melanoma skin cancer
+  \item
+    Basal cell carcinoma of the skin
+  \item
+    Breast
+  \item
+    Trachea, bronchus and lung
+  \item
+    Colorectal cancer
+  \end{itemize}
+\item
+  The proportion of older people in the population rose, and this trend
+  is projected to continue
+\end{itemize}
+
+\hypertarget{references}{%
+\subsubsection{\texorpdfstring{{References}}{References}}\label{references}}
+
+\textbf{Data on cancer instances over time:}
+\url{https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014}
+
+\textbf{Population estimate data: }
+\url{https://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/population/population-estimates/mid-year-population-estimates/population-estimates-time-series-data}
+
+\textbf{Scottish Borders population trends:}
+\url{https://www.nrscotland.gov.uk/files/statistics/council-area-data-sheets/scottish-borders-council-profile.html}
+
+\textbf{Definitions of crude and age-standardised rates:}
+\url{https://ecis.jrc.ec.europa.eu/info/glossary.html}
+
+\textbf{Example of using age-standardised rates:}
+\url{https://www.nrscotland.gov.uk/files//statistics/age-standardised-death-rates-esp/2017/age-standardised-17-methodology.pdf}
+
+\textbf{Health Board names reference data:}
+\url{https://www.opendata.nhs.scot/dataset/9f942fdb-e59e-44f5-b534-d6e17229cc7b/resource/652ff726-e676-4a20-abda-435b98dd7bdc/download/geography_codes_and_labels_hb2014_01042019.csv}
+
+\end{document}
