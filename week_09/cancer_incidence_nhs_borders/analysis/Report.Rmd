@@ -22,9 +22,9 @@ data_dictionary <- read_csv(here("data_raw/data_dictionary.csv"))
 
 
 
-# Incidence of cancer in NHS Borders
+# <span style="color:#005EB8">Incidence of cancer in NHS Borders</span>
 
-## Overview
+## <span style="color:#005EB8">Overview</span>
 
 This report uses publicly available data to give an insight into the incidence of cancer in the NHS Borders area.
 
@@ -43,7 +43,7 @@ It gives an overview of the following:
 The sources of figures used in the report are listed in the *references* section
 
 
-## How has the population changed over time?
+## <span style="color:#005EB8">How has the population changed over time?</span>
 
 The graph below for the period 1994-2018 shows how the population has increased - note that there was a particularly steep rise between 1999 and 2008.
 
@@ -69,7 +69,7 @@ population_estimates %>%
   )
 ```
 
-## How has the number of cancer cases changed over time?
+## <span style="color:#005EB8">How has the number of cancer cases changed over time?</span>
 
 This graph shows how cancer cases have risen in the same period:
 
@@ -96,7 +96,7 @@ cancer_incidence_data %>%
   )
 ```
 
-## What types of cancer are most prevalent in the region?
+## <span style="color:#005EB8">What types of cancer are most prevalent in the region?</span>
 
 The graph below gives a summary of the most common types of cancer: for the period 1994-2018, it shows totals for the cancer sites where at least 500 instances were recorded (13 of the 41 cancer types recorded).
 
@@ -124,15 +124,15 @@ cancer_incidence_data %>%
   )
 ```
 
-## What is the impact of the age of our residents?
+## <span style="color:#005EB8">What is the impact of the age of our residents?</span>
 
 The relative proportion of older people in The Borders is projected to rise, which will have an impact on the types and capacity of services which NHS will need to offer, including cancer services.
 
 To illustrate this changing demographic, the graph of cancer instances below shows:
 
-*  **The crude rate:** This is calculated as the number of instances per 100,000 people.
+*  <span style="color:#00A9CE">**The crude rate:**</span> This is calculated as the number of instances per 100,000 people.
 
-* **The European age-standardised rate:** This is the rate that would have been found if the population of The Borders had the same age-composition (proportion of total population in each five year age class) as a hypothetical European population, known as the *European Standard Population*.
+* <span style="color:#003087">**The European age-standardised rate:**</span> This is the rate that would have been found if the population of The Borders had the same age-composition (proportion of total population in each five year age class) as a hypothetical European population, known as the *European Standard Population*.
 
 The age-standardised rate should not be affected by any changes in the distribution of the population by age.
 
@@ -174,10 +174,10 @@ rm(crude_rate, european_standardised_rate)
   scale_y_continuous(labels = scales::comma) +
   theme(axis.text.x = element_text(angle=45,hjust=1)) +
    theme(legend.position="bottom") +
-     scale_fill_manual(
+     scale_colour_manual(
     values = c(
-      "Crude Rate" = "#005EB8",
-      "European age-standardised rate" = "#00A9CE"
+      "Crude rate" = "#00A9CE",
+      "European age-standardised rate" = "#003087"
      )
     ) +
   labs(
@@ -190,7 +190,7 @@ rm(crude_rate, european_standardised_rate)
 
 ```
 
-## Summary of key points
+## <span style="color:#005EB8">Summary of key points</span>
 
 For the NHS Borders region during the period 1994-2018:
 
@@ -219,7 +219,7 @@ For the NHS Borders region during the period 1994-2018:
    
 
 
-## References
+### <span style="color:#005EB8">References</span>
 
 **Data on cancer instances over time:** https://www.opendata.nhs.scot/dataset/annual-cancer-incidence/resource/3aef16b7-8af6-4ce0-a90b-8a29d6870014
 
@@ -227,7 +227,7 @@ For the NHS Borders region during the period 1994-2018:
 
 **Scottish Borders population trends:** https://www.nrscotland.gov.uk/files/statistics/council-area-data-sheets/scottish-borders-council-profile.html
 
-**Definitions of crude and standardised rates:** https://ecis.jrc.ec.europa.eu/info/glossary.html
+**Definitions of crude and age-standardised rates:** https://ecis.jrc.ec.europa.eu/info/glossary.html
 
 **Example of using age-standardised rates:** https://www.nrscotland.gov.uk/files//statistics/age-standardised-death-rates-esp/2017/age-standardised-17-methodology.pdf
 
