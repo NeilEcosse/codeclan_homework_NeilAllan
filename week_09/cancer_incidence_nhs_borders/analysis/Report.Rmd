@@ -57,6 +57,7 @@ population_estimates %>%
   summarise(population_estimate = sum(population_estimate)) %>% 
   ggplot() +
   aes(x = year, y = population_estimate) +
+  # NHS colours: https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/
   geom_line(colour = "#005EB8", size  = 2) +
   theme_minimal() +
   scale_x_continuous(breaks = 1994:2018) +

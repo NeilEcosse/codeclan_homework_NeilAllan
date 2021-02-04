@@ -519,6 +519,7 @@ data_dictionary &lt;- read_csv(here(&quot;data_raw/data_dictionary.csv&quot;)) <
   summarise(population_estimate = sum(population_estimate)) %&gt;% 
   ggplot() +
   aes(x = year, y = population_estimate) +
+  # NHS colours: https://www.england.nhs.uk/nhsidentity/identity-guidelines/colours/
   geom_line(colour = &quot;#005EB8&quot;, size  = 2) +
   theme_minimal() +
   scale_x_continuous(breaks = 1994:2018) +
