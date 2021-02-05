@@ -138,9 +138,9 @@ To illustrate this changing demographic, the graph of cancer cases below shows:
 
 **The age-standardised rate should not be affected by any changes in the distribution of the population by age.**
 
-What you can see in this graph is that from 2009 onward, the crude rate exceeds the age-standardised rate - this higher number of cancer cases gives an indication that the actual population of The Borders is older than the standardised version.
+What you can see in this graph is that from 2009 onward the crude rate exceeds the age-standardised rate - this higher number of cancer cases gives an indication that the actual population of The Borders is older than the standardised version.
 
-There are now proportionally more people in older age groups, who are more likely to develop cancer; estimates published by National Records of Scotland *(see reference section below)* anticipate that this trend will continue, so cancer services in The Borders will need to increase provision to treat and support these patients.
+There are now proportionally more people in older age groups, who are more likely to develop cancer; estimates published by National Records of Scotland *(see references section below)* anticipate that this trend will continue, so cancer services in The Borders will need to increase provision to treat and support these patients.
 
 ```{r, warning = F, message = F}
 # Crude rate

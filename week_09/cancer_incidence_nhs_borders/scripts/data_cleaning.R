@@ -47,7 +47,7 @@ cancer_incidence_data <-
 cancer_incidence_data <- cancer_incidence_data %>% 
 rename("hb_code" = "hb")
 
-# Save output as csv in clean_data folder
+# Save output as csv in data_clean folder
 write_csv(cancer_incidence_data, here("data_clean/cancer_incidence_data.csv"))
 
 # Drop data items from environment
@@ -68,7 +68,7 @@ population_estimates <- population_estimates %>%
                names_to = "year",
                values_to = "population_estimate",)
 
-# Save population output as csv in clean_data folder
+# Save population output as csv in data_clean folder
 write_csv(population_estimates, here("data_clean/population_estimates.csv"))
 
 # Drop population data item from environment
@@ -80,7 +80,7 @@ rm(population_estimates)
 data_dictionary <- 
   read_csv(here("data_raw/data_dictionary.csv"))
 
-# Save data dictionary as csv in clean_data folder
+# Save data dictionary as csv in data_clean folder
 write_csv(data_dictionary, here("data_clean/data_dictionary.csv"))
 
 # Drop data dictionary data item from environment
