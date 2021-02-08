@@ -1,0 +1,82 @@
+---
+title: "Homework week 10 day 1"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(modelr)
+library(broom)
+library(janitor)
+library(ggfortify)
+```
+
+
+## 1. Load the data into a dataframe `project`
+```{r}
+project <- read_csv("data/project_management.csv")
+```
+
+
+## 2. Plot the data, taking estimated_length as the independent variable and actual_length as the dependent variable.
+```{r}
+project %>% 
+  ggplot(aes(x = actual_length, y = estimated_length)) +
+  geom_point()
+```
+
+
+## 3. Calculate the correlation coefficient of estimated_length and actual_length and interpret the value you obtain.
+
+Very strong correlation - between 0.8 and 0.99
+
+```{r}
+project %>%
+  summarise(cor(estimated_length, actual_length))
+```
+## 4. Perform a simple linear regression using actual_length as the dependent variable, and estimated_length as the independent variable. Save the model object to a variable.
+
+```{r}
+model <- lm(formula = estimated_length ~ actual_length, data = project)
+
+model
+```
+## 5. Interpret the regression coefficient of estimated_length (i.e. slope, gradient) you obtain from the model. How do you interpret the r2 value reported by the model?
+
+Ignoring the outlier at (39,22) it seems reasonable?
+
+r2 0.64: some of variation explained by explanitory variable?
+
+```{r}
+glance_output <- clean_names(glance(model))
+glance_output
+```
+
+```{r}
+tidy_output <- clean_names(tidy(model))
+tidy_output
+```
+
+
+```{r}
+project <- project %>%
+  add_predictions(model) %>%
+  add_residuals(model)  %>% 
+  arrange(desc(actual_length))
+project
+
+project %>% 
+ggplot(aes(x = actual_length)) +
+  geom_point(aes(y = estimated_length)) +
+  geom_line(aes(y = pred), col = "red")
+```
+
+
+## 6. Is the relationship statistically significant? Remember, to assess this you need to check the p-value of the regression coefficient (or slope/gradient). But you should first check the regression diagnostic plots to see if the p-value will be reliable (don’t worry about any outlier points you see in the diagnostic plots, we’ll return to them in the extension).
+
+p-value = 1.911284^12?
+
+```{r}
+
+```
+

@@ -151,6 +151,7 @@ crude_rate <- cancer_incidence_data %>%
   mutate(measure = "Crude rate",
          rate = crude_rate) %>% 
   select(hb_name, year, measure, rate) 
+
 # European age-standardised rate
 european_standardised_rate <- cancer_incidence_data %>% 
   filter(hb_name == "NHS Borders") %>% 
