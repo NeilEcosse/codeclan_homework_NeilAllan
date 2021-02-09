@@ -1,0 +1,123 @@
+---
+title: "Homework week 10 day 2"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(mosaic)
+library(mosaicData)
+library(janitor)
+library(GGally)
+library(fastDummies)
+```
+
+## 1. Load the diamonds.csv data set and undertake an initial exploration of the data. You will find a description of the meanings of the variables on the relevant Kaggle page: https://www.kaggle.com/shivam2503/diamonds/
+
+```{r}
+diamonds <- read_csv("diamonds.csv")
+```
+
+
+## 2. We expect the carat of the diamonds to be strong correlated with the physical dimensions x, y and z. Use ggpairs() to investigate correlations between these four variables.
+
+Very strong correlation - carat a measure of diamond weight
+
+```{r}
+diamonds_carat_dims <- diamonds %>% 
+select(carat, x, y, z)  
+
+ggpairs(diamonds_carat_dims)
+```
+
+
+## 3. So, we do find significant correlations. Let’s drop columns x, y and z from the dataset, in preparation to use only carat going forward.
+
+```{r}
+diamonds %>% 
+  distinct(color) %>% 
+  arrange(color)
+```
+### Add numeric versions of "quality" columns
+
+lowest number = lowest "quality"
+
+Data dictionary:
+
+* **cut:** quality of the cut (Fair, Good, Very Good, Premium, Ideal)
+* **color:** diamond colour, from J (worst) to D (best)
+* **clarity:** a measurement of how clear the diamond is (I1 (worst), SI2, SI1, VS2, VS1, VVS2, VVS1, IF (best))
+
+```{r}
+diamonds_trim <- diamonds %>% 
+  # add numeric cut quality column
+  mutate(cut_numeric = recode(cut, "Fair" = 1,
+                                   "Good" = 2,
+                                   "Very Good" = 3,
+                                   "Premium" = 4,
+                                   "Ideal" = 5)) %>% 
+  # add numeric clarity quality column
+  mutate(clarity_numeric = recode(clarity, "I1" = 1,
+                                   "SI2" = 2,
+                                   "SI1" = 3,
+                                   "VS2" = 4,
+                                   "VS1" = 5,
+                                   "VVS2" = 6,
+                                   "VVS1" = 7,
+                                   "IF" = 8,
+                                  )) %>%
+  # add numeric colour quality column
+  mutate(color_numeric = recode(color, "J" = 1,
+                                   "I" = 2,
+                                   "H" = 3,
+                                   "G" = 4,
+                                   "F" = 5,
+                                   "E" = 6,
+                                   "D" = 7,
+                                  )) %>%
+  select(-c(X1, x, y, z, cut, color, clarity))
+```
+
+
+
+# We are interested in developing a regression model for the price of a diamond in terms of the possible predictor variables in the dataset:
+
+## 4 i. Use ggpairs() to investigate correlations between price and the predictors (this may take a while to run, don’t worry, make coffee or something).
+
+Carat has a strong correlation with price
+
+
+
+```{r}
+ggpairs(diamonds_trim)
+```
+
+## 4ii. Perform further ggplot visualisations of any significant correlations you find.
+
+Lots of them seem to tie up exactly with the carat line - wonder if weighing scheme is exact, or if a bit of "rounding up" or assessment of  aesthetic value to get a better price is permissible?
+
+
+```{r}
+diamonds_trim %>% 
+  ggplot(aes(x = carat, y = price))+
+  geom_point()
+
+```
+
+# Shortly we may try a regression fit using one or more of the categorical predictors cut, clarity and color, so let’s investigate these predictors:
+
+Guess this means my recoding of these columns above is wrong!
+
+## 5 i.  Investigate the factor levels of these predictors. How many dummy variables do you expect for each of them?
+
+cut: 5
+color: 7
+clarity: 8
+
+## 5 ii. Use the dummy_cols() function in the fastDummies package to generate dummies for these predictors and check the number of dummies in each case.
+
+```{r}
+dummy_cols(diamonds)
+```
+

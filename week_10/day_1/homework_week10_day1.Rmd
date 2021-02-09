@@ -21,7 +21,7 @@ project <- read_csv("data/project_management.csv")
 ## 2. Plot the data, taking estimated_length as the independent variable and actual_length as the dependent variable.
 ```{r}
 project %>% 
-  ggplot(aes(x = actual_length, y = estimated_length)) +
+  ggplot(aes(x = estimated_length, y = actual_length)) +
   geom_point()
 ```
 
@@ -36,8 +36,10 @@ project %>%
 ```
 ## 4. Perform a simple linear regression using actual_length as the dependent variable, and estimated_length as the independent variable. Save the model object to a variable.
 
+**always y ~ x**
+
 ```{r}
-model <- lm(formula = estimated_length ~ actual_length, data = project)
+model <- lm(formula = actual_length ~ estimated_length, data = project)
 
 model
 ```
@@ -46,6 +48,11 @@ model
 Ignoring the outlier at (39,22) it seems reasonable?
 
 r2 0.64: some of variation explained by explanitory variable?
+
+```{r}
+
+```
+
 
 ```{r}
 glance_output <- clean_names(glance(model))
@@ -77,6 +84,6 @@ ggplot(aes(x = actual_length)) +
 p-value = 1.911284^12?
 
 ```{r}
-
+autoplot(model)
 ```
 
