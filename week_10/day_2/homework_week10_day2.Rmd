@@ -4,10 +4,8 @@ output: html_notebook
 ---
 
 
-```{r}
+```{r, warning = F, message = F}
 library(tidyverse)
-library(mosaic)
-library(mosaicData)
 library(janitor)
 library(GGally)
 library(fastDummies)
@@ -15,14 +13,14 @@ library(fastDummies)
 
 ## 1. Load the diamonds.csv data set and undertake an initial exploration of the data. You will find a description of the meanings of the variables on the relevant Kaggle page: https://www.kaggle.com/shivam2503/diamonds/
 
-```{r}
+```{r, warning = F, message = F}
 diamonds <- read_csv("diamonds.csv")
 ```
 
 
 ## 2. We expect the carat of the diamonds to be strong correlated with the physical dimensions x, y and z. Use ggpairs() to investigate correlations between these four variables.
 
-Very strong correlation - carat a measure of diamond weight
+Very strong correlation - carat is a measure of diamond weight
 
 ```{r}
 diamonds_carat_dims <- diamonds %>% 
@@ -95,7 +93,7 @@ ggpairs(diamonds_trim)
 
 ## 4ii. Perform further ggplot visualisations of any significant correlations you find.
 
-Lots of them seem to tie up exactly with the carat line - wonder if weighing scheme is exact, or if a bit of "rounding up" or assessment of  aesthetic value to get a better price is permissible?
+Lots of them seem to tie up exactly with the 1, 2 & 3carat lines - wonder if weighing scheme is exact, or if a bit of "rounding up" or assessment of  aesthetic value to get a better price is permissible?
 
 
 ```{r}
@@ -111,13 +109,19 @@ Guess this means my recoding of these columns above is wrong!
 
 ## 5 i.  Investigate the factor levels of these predictors. How many dummy variables do you expect for each of them?
 
+These are the original numbers of predictors:
 cut: 5
 color: 7
 clarity: 8
 
+Because one from each group can be derived from the others in the same group, the total number of dummy variables would be 17
+
 ## 5 ii. Use the dummy_cols() function in the fastDummies package to generate dummies for these predictors and check the number of dummies in each case.
 
 ```{r}
-dummy_cols(diamonds)
+diamonds_dummy_cols <- diamonds %>% 
+dummy_cols()
+
+names(diamonds_dummy_cols)
 ```
 
