@@ -1,0 +1,239 @@
+---
+title: "Homework week 10 day 3"
+output: html_notebook
+---
+
+```{r}
+library(car)
+library(tidyverse)
+library(modelr)
+library(GGally)
+library(ggfortify)
+```
+
+```{r}
+kc_house_data <- read_csv("data/kc_house_data.csv")
+```
+
+# Clean data
+
+## Check contents of `waterfront`
+```{r}
+wf <- kc_house_data %>% 
+  distinct(waterfront)
+
+wf
+```
+
+## Convert `waterfront` to true/false, drop na, drop unwanted or redundant fields
+```{r}
+kc_house_data_trim <- kc_house_data %>% 
+  drop_na() %>%
+  mutate(waterfront = ifelse(waterfront == 1, TRUE, FALSE)) %>% 
+  select(-c(id, date, zipcode, sqft_living15, sqft_lot15))
+```
+
+## Check content of `yr_renovated` -  do I want to make this logical?
+
+I'm not going to use this field to make a logical variable - I'm not sure it's complete for all records, or how "renovated" has been defined.
+
+e.g. 
+
+* only 914 of 21,613 houses have ever been renovated according to the data
+
+* of almost 5,000 properties built before 1950, only 12% had ever been renovated by 2014/15 
+These numbers don't feel right.
+
+
+I should probably model it anyway though to see what it does... but dropping it for the moment
+
+**Number renovated/not renovated:**
+```{r}
+kc_house_data_trim %>% 
+  mutate(renovated = ifelse(yr_renovated == 0, FALSE, TRUE)) %>% 
+  group_by(renovated) %>% 
+  summarise(count = n()) 
+
+```
+
+
+**Number built before 1950 and never renovated:**
+```{r}
+kc_house_data_trim %>% 
+  filter(yr_built < 1950) %>% 
+  mutate(renovated = ifelse(yr_renovated == 0, "Never renovated", "Renovated")) %>% 
+  group_by(renovated) %>% 
+  summarise(count = n()) 
+```
+
+
+**Number renovated/not renovated by build year:**
+```{r}
+kc_house_data_trim %>% 
+  mutate(renovated = ifelse(yr_renovated == 0, "Never renovated", "Renovated")) %>% 
+  group_by(yr_built, renovated) %>% 
+  summarise(count = n()) %>% 
+  pivot_wider(names_from = renovated, values_from = count) %>% 
+  arrange(yr_built)
+```
+
+
+**Drop yr_renovated**
+```{r}
+kc_house_data_trim <- kc_house_data_trim %>%
+  select(-yr_renovated)
+  
+```
+
+
+## condition and grade
+
+These are categorical ordinal data types - the numbers have a hierarchy which means something regarding the quality of the house
+
+
+
+# Aliased variables
+
+This tells us that **sqft_living = sqft_above + sqft_basement**
+
+Not totally sure which to remove:
+
+* Do I just keep `sqft_living` because that's the total?
+
+* Or keep the other 2 to see if e.g. amount of basement space is important, whilst the total `sqft_living` can be derived?
+
+
+I'll drop `sqft_living` for the moment
+
+**Check for alias**
+```{r}
+alias(price ~., data = kc_house_data_trim)
+```
+
+
+**Visual check of `sqft` fields in data**
+```{r}
+kc_house_data_trim %>% 
+  mutate(check_sqft_living_minus_above = sqft_living - sqft_above) %>% 
+  select(sqft_living, sqft_above, sqft_basement, check_sqft_living_minus_above) %>% 
+  head(10)
+```
+**Drop sqft_living**
+See model building steps below - I've put this back in
+```{r}
+#kc_house_data_trim <- kc_house_data_trim %>%
+#  select(-sqft_living)
+  
+```
+
+
+# Look for first predictor
+
+```{r}
+#kc_house_data_trim %>% 
+#  ggpairs(aes(colour = waterfront, alpha = 0.5))
+```
+
+Not sure how to do that bit - just going to start with relationship between `price` and `sqft_above`
+
+
+## model1 - above ground sq ft
+```{r}
+model1 <- lm(price ~ sqft_above, data = kc_house_data_trim)
+
+model1
+```
+So price = 59953.2 + 268.5*sqft_above
+
+```{r}
+summary(model1)
+```
+## model1 interpretation:
+Above ground sqft is statistically significant, and explains 36% of varaiation in price
+
+
+## model2 - above ground sq ft and basement sq ft
+
+```{r}
+model2 <- lm(price ~ sqft_above + sqft_basement, data = kc_house_data_trim)
+
+model2
+```
+
+```{r}
+summary(model2)
+```
+
+## model2 interpretation:
+This is still statistically significant, and now explains 49% of variance.
+
+Maybe I should've just kept total sqft, at least to compare to this
+
+I'm going to put it back in to try this
+
+
+## model3 - sqft_living
+
+```{r}
+model3 <- lm(price ~ sqft_living, data = kc_house_data_trim)
+
+model3
+```
+```{r}
+summary(model3)
+```
+## model3 interpretation:
+This has very similar results to using above ground & basement seperately, so for simplicity I'll continue with model3 and drop the other two fields as redundant.
+
+```{r}
+kc_house_data_trim <- kc_house_data_trim %>%
+  select(-c(sqft_above, sqft_basement))
+```
+
+
+
+## model4 - sqft &  condition
+```{r}
+model4 <- lm(price ~ sqft_living + condition, data = kc_house_data_trim)
+
+model4
+```
+```{r}
+summary(model4)
+```
+## model4 interpretation: 
+This doesn't seem to add anything to my model?  Statistically significant, but still 49% of variation explained
+
+
+## model5 - sqft &  waterfront
+
+```{r}
+model5 <- lm(price ~ sqft_living + waterfront, data = kc_house_data_trim)
+
+model5
+```
+```{r}
+summary(model5)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+
+plot(model5)
+```
+
+
+## model5 interpretation:
+Statistically signficant, 53% of variation explained
+
+### Next predictor:
+Look at residuals: Not sure which to look at, or how to do it with numeric fields
+```{r}
+kc_house_data_remaining_resid <- kc_house_data_trim %>% 
+  add_residuals(model5) %>% 
+  select(-c("price", "sqft_living", "waterfront"))
+
+#kc_house_data_remaining_resid %>% 
+#  ggpairs(aes(colour = bedrooms))
+```
+
