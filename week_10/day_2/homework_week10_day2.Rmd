@@ -93,7 +93,7 @@ ggpairs(diamonds_trim)
 
 ## 4ii. Perform further ggplot visualisations of any significant correlations you find.
 
-Lots of them seem to tie up exactly with the 1, 2 & 3carat lines - wonder if weighing scheme is exact, or if a bit of "rounding up" or assessment of  aesthetic value to get a better price is permissible?
+Lots of them seem to tie up exactly with the 1, 2 & 3 carat lines - wonder if deliberately cut to be of a size which gets the best price?
 
 
 ```{r}
