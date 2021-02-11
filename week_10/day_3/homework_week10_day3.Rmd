@@ -9,6 +9,7 @@ library(tidyverse)
 library(modelr)
 library(GGally)
 library(ggfortify)
+library(devtools)
 ```
 
 ```{r}
@@ -235,5 +236,29 @@ kc_house_data_remaining_resid <- kc_house_data_trim %>%
 
 #kc_house_data_remaining_resid %>% 
 #  ggpairs(aes(colour = bedrooms))
+```
+
+
+## ? try PCA
+```{r}
+kc_house_data_numeric <- kc_house_data_trim %>%
+  select(-waterfront)
+```
+
+```{r}
+kc_house_pca <- prcomp(kc_house_data_numeric, center = TRUE, scale. = TRUE)
+```
+
+```{r}
+summary(kc_house_pca)
+```
+
+```{r}
+install_github("vqv/ggbiplot")
+
+```
+
+```{r}
+# ggbiplot(kc_house_pca, obs.scale = 1, var.scale = 1)
 ```
 
