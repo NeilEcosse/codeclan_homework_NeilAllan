@@ -13,6 +13,7 @@ output:
 library(tidyverse)
 library(janitor)
 library(lubridate)
+library(leaps)
 
 ```
 
@@ -21,7 +22,10 @@ I'm struggling to understand the "volume" figures in the data:
 
 `total_volume` is the sum of `x4046 + x4225 + x4770 + small_bags + large_bags + x_large_bags` for about 2/3 of records, but for the other 1/3 the total is out by around 38k
 
-I'm going to ignore this for the moment and carry on, as the model is mot using volume
+I'm going to ignore this for the moment and carry on, as the model is not using volume.
+
+
+However, I'm  not happy with the clean dataset I've created - feels like I should be using avcado PMU size (4046, 4225 & 4770 columns) as a predictor, but can't see how to.
 
 
 ```{r, warning = F, message = F}
@@ -114,9 +118,13 @@ mutate(compare_bag_totals = total_bags - total_bags_calculated)
 ```
 <img src = "images/data_dictionary.png">
 
+<img src = "images/avocado_plu.png">
+
 ## Data preparation/cleaning
 
 Click on `Code` button for details
+
+I've got percentage totals for pmu/bag size columns; I originally used pivot_longer on these two subsets, but was duplicating volume totals, and couldn't see how these new columns would help see any influence on average price.
 
 ```{r, warning = F, message = F}
 # read in data
@@ -145,9 +153,9 @@ avocado_clean <- avocado_clean %>%
 # add percentage PMU categories
 avocado_clean <- avocado_clean %>%
   mutate(pmu_total = x4046 + x4225+ x4770) %>% 
-  mutate(pmu_4046_percent = x4046/pmu_total) %>%
-  mutate(pmu_4225_percent = x4225/pmu_total) %>% 
-  mutate(pmu_4770_percent = x4770/pmu_total)
+  mutate(pmu_4046_percent = as.factor(x4046/pmu_total)) %>%
+  mutate(pmu_4225_percent = as.factor(x4225/pmu_total)) %>% 
+  mutate(pmu_4770_percent = as.factor(x4770/pmu_total))
 
 
 # add percentage bag size categories
@@ -157,7 +165,7 @@ avocado_clean <- avocado_clean %>%
   mutate(large_bags_percent = large_bags/bag_total_calc) %>%
   mutate(x_large_bags_bags_percent = x_large_bags/bag_total_calc) 
 
-# drop redundant pmu/bag columns
+# drop redundant/unused columns
 avocado_clean <- avocado_clean %>% 
   select(year,
          month,
@@ -170,57 +178,38 @@ avocado_clean <- avocado_clean %>%
          large_bags_percent,
          x_large_bags_bags_percent)
 
+# create further trimmed version with minimal data
+
+avocado_trim <- avocado_clean %>% 
+  select(year,
+         month,
+         organic,
+         average_price)
+
+```
 
 
+## Try a forward model
 
+I can't get this to work with my `avocado_clean` table which has pmu (size) percentages, so I'm using the smaller dataset `avocado_trim`
 
+I don't think the way I've built the model is doing anything useful - I've only got three predictors, and two of them are just bits of the date.
+```{r}
+avocado_regsubsets_forward <- regsubsets(average_price ~ ., data = avocado_trim, nvmax = 11, method = "forward")
 
-
-
-
-  
-
-
+summary_regsubset <- summary(avocado_regsubsets_forward)
 ```
 
 
 ```{r}
-
-```
-
-
-
-```{r}
-glimpse(avocado)
+plot(avocado_regsubsets_forward, scale = "adjr2")
 ```
 
 ```{r}
-avocado_test <- 
-  # read in data
-avocado <- read_csv("data_raw/avocado.csv") %>% 
-  clean_names()
-
-# add month and organic columns
-avocado_test <- avocado_test %>%
-mutate(month = month(date)) %>% 
-mutate(organic = ifelse(type == "organic", TRUE, FALSE))
+plot(summary_regsubset$rsq, type = "b")
+plot(summary_regsubset$bic, type = "b")
 ```
 
-```{r}
-avocado_test %>% 
-  group_by(month) %>% 
-  summarise(average_price = mean(average_price),
-            total_volume = sum(total_volume))
-  
-```
-
-```{r}
-avocado_trim %>% 
-  group_by(month) %>% 
-  summarise(average_price = mean(average_price),
-            total_volume = sum(total_volume))
 
 
-
-```
 
