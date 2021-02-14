@@ -1,0 +1,226 @@
+---
+output:
+  html_document:
+    code_folding: hide
+  html_notebook: default
+  pdf_document: default
+---
+
+# Avocado data
+
+
+```{r, warning = F, message = F}
+library(tidyverse)
+library(janitor)
+library(lubridate)
+
+```
+
+## Data checks
+I'm struggling to understand the "volume" figures in the data:
+
+`total_volume` is the sum of `x4046 + x4225 + x4770 + small_bags + large_bags + x_large_bags` for about 2/3 of records, but for the other 1/3 the total is out by around 38k
+
+I'm going to ignore this for the moment and carry on, as the model is mot using volume
+
+
+```{r, warning = F, message = F}
+# Read in raw data
+avocado <- read_csv("data_raw/avocado.csv") %>% 
+  clean_names()
+
+# Check for NAs
+#avocado %>% 
+#  summarise(across(.fns = ~sum(is.na(.))))
+
+# Get PMU + bags total
+avocado_totals <- avocado %>% 
+  mutate(total_pmu_plus_bags = (x4046 + 
+                                   x4225 + 
+                                   x4770 +
+                                   small_bags +
+                                   large_bags +
+                                   x_large_bags)
+  ) %>% 
+  select(total_volume,
+         total_pmu_plus_bags,
+         x4046, 
+         x4225, 
+         x4770,
+         total_bags,
+         small_bags,
+         large_bags,
+         x_large_bags)
+ # Compare raw data total volume to PMU + bags total 
+avocado_totals <- avocado_totals %>% 
+mutate(compare_totals = total_volume - total_pmu_plus_bags) 
+
+# Check where these don't match - about 1/3 of records
+#avocado_totals %>% 
+#  filter(compare_totals != 0) %>% 
+#  select(total_volume,
+#         total_pmu_plus_bags,
+#         compare_totals,
+#         x4046, 
+#         x4225, 
+#         x4770,
+#         total_bags,
+#         small_bags,
+#         large_bags,
+#         x_large_bags) %>% 
+#  arrange(desc(compare_totals)) 
+
+# Check missing value
+avocado_totals %>% 
+  summarise(total_volume_raw_data = format(sum(total_volume), big.mark= ",", nsmall = 2),
+            total_pmu_plus_bags = format(sum(total_pmu_plus_bags), big.mark= ",", nsmall = 2),
+            compare_totals = format(sum(compare_totals), big.mark= ",", nsmall = 2)
+  )
+
+
+```
+
+```{r, warning = F, message = F}
+avocado_bags_totals <- avocado %>% 
+  mutate(total_bags_calculated = small_bags + large_bags + x_large_bags) %>% 
+  select(total_bags,
+         total_bags_calculated,
+         small_bags, 
+         large_bags, 
+         x_large_bags)
+ # Compare raw data bags total to calculated bags total 
+avocado_bags_totals <- avocado_bags_totals %>% 
+mutate(compare_bag_totals = total_bags - total_bags_calculated) 
+
+# Check where these don't match
+#avocado_bags_totals %>% 
+#  filter(compare_bag_totals != 0) %>% 
+ #   select(total_bags,
+#         total_bags_calculated,
+#         compare_bag_totals,
+#         small_bags, 
+#         large_bags, 
+#         x_large_bags) %>% 
+#  arrange(desc(compare_bag_totals)) 
+
+# Check missing value
+#avocado_bags_totals %>% 
+#  summarise(total_bags_raw_data = sum(total_bags),
+#            total_bags_calculated = sum(total_bags_calculated),
+#            compare_bag_totals = format(sum(compare_bag_totals), #nsmall = 2)
+#  )
+
+
+```
+<img src = "images/data_dictionary.png">
+
+## Data preparation/cleaning
+
+Click on `Code` button for details
+
+```{r, warning = F, message = F}
+# read in data
+avocado_clean <- read_csv("data_raw/avocado.csv") %>% 
+  clean_names()
+
+# add month and organic columns
+avocado_clean <- avocado_clean %>%
+mutate(month = month(date)) %>% 
+mutate(organic = ifelse(type == "organic", TRUE, FALSE))
+
+# drop date, region and group data
+avocado_clean <- avocado_clean %>% 
+  group_by(year,
+           month,
+           organic) %>% 
+  summarise(average_price = mean(average_price),
+            x4046 = sum(x4046),
+            x4225 = sum(x4225),
+            x4770 = sum(x4770),
+            small_bags = sum(small_bags),
+            large_bags = sum(large_bags),
+            x_large_bags = sum(x_large_bags)
+            ) 
+
+# add percentage PMU categories
+avocado_clean <- avocado_clean %>%
+  mutate(pmu_total = x4046 + x4225+ x4770) %>% 
+  mutate(pmu_4046_percent = x4046/pmu_total) %>%
+  mutate(pmu_4225_percent = x4225/pmu_total) %>% 
+  mutate(pmu_4770_percent = x4770/pmu_total)
+
+
+# add percentage bag size categories
+avocado_clean <- avocado_clean %>%
+  mutate(bag_total_calc = small_bags + large_bags+ x_large_bags) %>% 
+  mutate(small_bags_percent = small_bags/bag_total_calc) %>%
+  mutate(large_bags_percent = large_bags/bag_total_calc) %>%
+  mutate(x_large_bags_bags_percent = x_large_bags/bag_total_calc) 
+
+# drop redundant pmu/bag columns
+avocado_clean <- avocado_clean %>% 
+  select(year,
+         month,
+         organic,
+         average_price,
+         pmu_4046_percent,
+         pmu_4225_percent,
+         pmu_4770_percent,
+         small_bags_percent,
+         large_bags_percent,
+         x_large_bags_bags_percent)
+
+
+
+
+
+
+
+
+
+  
+
+
+```
+
+
+```{r}
+
+```
+
+
+
+```{r}
+glimpse(avocado)
+```
+
+```{r}
+avocado_test <- 
+  # read in data
+avocado <- read_csv("data_raw/avocado.csv") %>% 
+  clean_names()
+
+# add month and organic columns
+avocado_test <- avocado_test %>%
+mutate(month = month(date)) %>% 
+mutate(organic = ifelse(type == "organic", TRUE, FALSE))
+```
+
+```{r}
+avocado_test %>% 
+  group_by(month) %>% 
+  summarise(average_price = mean(average_price),
+            total_volume = sum(total_volume))
+  
+```
+
+```{r}
+avocado_trim %>% 
+  group_by(month) %>% 
+  summarise(average_price = mean(average_price),
+            total_volume = sum(total_volume))
+
+
+
+```
+

@@ -31,6 +31,10 @@ wf
 kc_house_data_trim <- kc_house_data %>% 
   drop_na() %>%
   mutate(waterfront = ifelse(waterfront == 1, TRUE, FALSE)) %>% 
+  # these steps added after homework review
+  mutate(condition = as_factor(condition)) %>%
+  mutate(grade = as_factor(grade)) %>% 
+  #****************************************
   select(-c(id, date, zipcode, sqft_living15, sqft_lot15))
 ```
 
@@ -136,6 +140,19 @@ See model building steps below - I've put this back in
 ```
 
 Not sure how to do that bit - just going to start with relationship between `price` and `sqft_above`
+
+## solution from homework review
+```{r}
+houses_tidy_numeric <- kc_house_data_trim %>%
+  select_if(is.numeric)
+
+houses_tidy_nonnumeric <- kc_house_data_trim %>%
+  select_if(function(x) !is.numeric(x))
+
+houses_tidy_nonnumeric$price <- kc_house_data_trim$price
+
+ggpairs(houses_tidy_numeric, proportions = 10)
+```
 
 
 ## model1 - above ground sq ft
@@ -260,5 +277,17 @@ install_github("vqv/ggbiplot")
 
 ```{r}
 # ggbiplot(kc_house_pca, obs.scale = 1, var.scale = 1)
+```
+
+## model6 - add condition
+
+```{r}
+model6 <- lm(price ~ sqft_living + waterfront + condition, data = kc_house_data_trim)
+
+model6
+```
+
+```{r}
+summary(model6)
 ```
 
