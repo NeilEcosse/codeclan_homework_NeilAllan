@@ -122,7 +122,7 @@ mutate(compare_bag_totals = total_bags - total_bags_calculated)
 
 ## Data preparation/cleaning
 
-Click on `Code` button for details
+
 
 I've got percentage totals for pmu/bag size columns; I originally used pivot_longer on these two subsets, but was duplicating volume totals, and couldn't see how these new columns would help see any influence on average price.
 
@@ -179,7 +179,6 @@ avocado_clean <- avocado_clean %>%
          x_large_bags_bags_percent)
 
 # create further trimmed version with minimal data
-
 avocado_trim <- avocado_clean %>% 
   select(year,
          month,
