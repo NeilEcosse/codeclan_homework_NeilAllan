@@ -61,8 +61,13 @@ As a percentage of the total for the groups below:
   
   * The lower the passenger class, the more people died
 
-Some of the figures in this dataset drive home just how horrific this event was: 
-Twenty-nine children aged 12 and under lost their lives in the disaster; one of them was [travelling without a parent](https://www.geni.com/people/Houssein-Mohamed-Hassan-Albimona/6000000015912251772) - he was on his way to visit them in America. Even amongst all these terrible figures, this is a particularly harrowing thought.
+Taking a few example figures from the dataset drives home just how horrific this event was: 
+
+Twenty-nine children aged 12 and under lost their lives in the disaster
+
+The three Palsson children listed below died along with their mother and an older sibling en route to join their father who had [emigrated to the US from Sweden](https://www.encyclopedia-titanica.org/titanic-victim/alma-cornelia-palsson.html)
+
+Houssein Hassan was [travelling without a parent](https://www.geni.com/people/Houssein-Mohamed-Hassan-Albimona/6000000015912251772) - he was on his way to visit them in America. 
 
 ```{r, warning = F, message = F}
 titanic_set %>% 
@@ -70,8 +75,9 @@ titanic_set %>%
   filter(age <= 12,
          survived == FALSE) %>% 
   select(name, age, no_parents_on_board) %>% 
-  arrange(no_parents_on_board,age)
+  arrange(no_parents_on_board, name, age)
 ```
+
 
   
 ```{r, warning = F, message = F}
