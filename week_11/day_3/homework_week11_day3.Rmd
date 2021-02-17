@@ -1,0 +1,244 @@
+---
+output:
+  html_document:
+    code_folding: hide
+  html_notebook: default
+  pdf_document: default
+---
+
+# Homework week 11 day 3 - clustering
+
+You have been provided some customer data from a shopping centre. Do some exploratory analysis on the data. Comment on findings.
+
+We are interested in creating a marketing campaign to target customers based on their spending score and annual income. Perform a k-means clustering to find if there are meaningful clusters in the data to target the customers.
+
+Perform k-means clustering and chose a value of k.
+
+Visualise the clustering for your chosen value of k.
+
+Do you think the clustering seems a good fit for this data?
+
+Comment on the attributes on one or two of the clusters (maybe even give them a label if you like - like in section 4.1 of the ‘Segmentation & clustering intro’ lesson).
+
+## Exploratory analysis
+```{r, warning = F, message = F}
+library(tidyverse)
+library(janitor)
+library(broom)
+library(animation)
+```
+
+### Load data and check for NAs
+```{r, warning = F, message = F}
+
+
+customers <- read_csv("data/mall_customers.csv") %>% 
+  clean_names() 
+
+print("NAs  found in data?")
+any(is.na(customers))
+
+```
+
+### Visualise spending data by age
+
+Not part of the brief, but just having  a quick look.
+
+I've added a red line to show how this could perhaps be divided into two clusters - younger people tending to have a higher spending score
+
+```{r, warning = F, message = F}
+customers %>% 
+  ggplot() +
+  aes(x = age, y = spending_score_1_100) +
+  geom_point()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  geom_segment(aes(x = 26, y = 00, xend = 45, yend = 100), colour = "red", linetype = "dashed") +
+  labs(title = "Spending score by age  \n",
+       x = "\n Age",
+       y = "Spending score \n"
+  )
+```
+
+### Visualise spending data by income
+
+I've added red lines to highlight five clusters which are clear in the data.
+
+These are consistent by gender.
+
+As the groups are very distinct, I would tend to assume this is an educational dataset created specifically for this purpose.
+
+Some notes on the clusters:
+
+* **People earning <40k:** two spending score clusters of 0-40 and 60-100
+
+* **People earning 40-70k:** one spending score cluster of 40-60
+
+* **People earning >70k:** two spending score clusters of 0-40 and 60-100
+
+```{r, warning = F, message = F}
+customers %>% 
+  ggplot() +
+  aes(x = annual_income_k, y = spending_score_1_100) +
+  geom_point()+
+  scale_x_continuous(breaks = c(0, 20, 40, 60, 80, 100, 120, 140, 160)) +
+  scale_y_continuous(breaks = c(0, 20, 40, 60, 80, 100)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  facet_wrap(~ gender) +
+  geom_segment(aes(x = 0, y = 40, xend = 110, yend = 40), colour = "red", linetype = "dashed") +
+  geom_segment(aes(x = 0, y = 60, xend = 110, yend = 60), colour = "red", linetype = "dashed") +
+    geom_segment(aes(x = 40, y = 0, xend = 40, yend = 100), colour = "red", linetype = "dashed") +
+    geom_segment(aes(x = 70, y = 0, xend = 70, yend = 100), colour = "red", linetype = "dashed") +
+  labs(title = "Spending score by annual income and gender \n",
+       x = "\n Annual income (000s)",
+       y = "Spending score \n"
+  )
+```
+
+## K-means clustering
+### Check mean & sd
+
+```{r, warning = F, message = F}
+
+customers %>% 
+  summarise(mean_income = round(mean(annual_income_k)), 
+            sd_income = sd(annual_income_k))
+```
+```{r, warning = F, message = F}
+
+customers %>% 
+  summarise(mean_spending_score = round(mean(spending_score_1_100)), 
+            sd_spending_score = sd(spending_score_1_100))
+```
+### Scale the data, check mean & sd again
+```{r, warning = F, message = F}
+income_spend_scaled <- customers %>% 
+  select(annual_income_k, spending_score_1_100) %>% 
+  mutate_if(is.numeric, scale)
+head(income_spend_scaled)
+```
+
+```{r, warning = F, message = F}
+income_spend_scaled %>% 
+  summarise(mean_income = round(mean(annual_income_k)), 
+            sd_income = sd(annual_income_k))
+```
+
+```{r, warning = F, message = F}
+income_spend_scaled %>% 
+  summarise(mean_spending_score = round(mean(spending_score_1_100)), 
+            sd_spending_score = sd(spending_score_1_100))
+```
+### Generate clusters
+
+I'm creating five clusters, based on the plots I created in my exploratory analysis.
+```{r, warning = F, message = F}
+
+income_spend_clustered <- kmeans(income_spend_scaled,
+                                 centers  = 5)
+
+tidy(income_spend_clustered,
+     col.names = colnames(income_spend_scaled))
+```
+
+### Add cluster number to observations in the original data
+
+I'm making this into a new table which I may use for deciding which customers to target
+
+*?? why is this showing different figures when I knit it*
+```{r, warning = F, message = F}
+customer_with_cluster <-
+augment(income_spend_clustered, customers) %>% 
+  rename("cluster" = ".cluster") %>% 
+  mutate(cluster_name = recode(cluster, "1"  = "Mid income, mid spend",
+                               "2" = "High income, low spend",
+                               "3" = "Lower income, high spend",
+                               "4" = "High income, high spend",
+                               "5" = "Lower income, low spend",))
+  
+customer_with_cluster  %>% 
+  group_by(cluster, cluster_name) %>% 
+  summarise(avg_income = mean(annual_income_k),
+            avg_spending_score = mean(spending_score_1_100)) %>% 
+  arrange(avg_income)
+
+```
+### Visualise the clusters
+```{r, warning = F, message = F}
+
+income_spend_scaled %>% 
+  kmeans.ani(centers = 5)
+```
+
+### Check that I'm using the optimal number of clusters
+
+This is pretty clear for this dataset, but doing it for practice.
+
+The *elbow point* of the graph is 5, which ties up with the intitial exploritary analysis of the data
+```{r}
+glance(income_spend_clustered)
+```
+```{r}
+max_k <- 20 
+
+k_clusters <- tibble(k = 1:max_k) %>%
+  mutate(
+    kclust = map(k, ~ kmeans(income_spend_scaled, .x, nstart = 25)), 
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, customers)
+  )
+
+head(k_clusters,3)
+
+clusterings <- k_clusters %>%
+  unnest(glanced)
+
+head(clusterings,3)
+```
+```{r}
+ggplot(clusterings, aes(x=k, y=tot.withinss)) +
+  geom_point() +
+    geom_line() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    scale_x_continuous(breaks = seq(1, 20, by = 1)) +
+      geom_segment(aes(x = 5, y = 0, xend = 5, yend = 400), colour = "red", linetype = "dashed") 
+```
+
+## Commentary and insights
+
+Clustering is a good fit for this dataset, which has clearly-defined groupings, already clearly visible in a simple scatter plot even before performing further analysis.
+
+The clusters are summarised in the output below - points to note which may be useful when deciding which customers to target:
+
+  * Income alone is not necessarily a good measure of which customers to target - there are high-spending clusters in both the low and high income brackets (and there are more customers in the low income bracket)
+
+  * The cluster with the highest number of customers is *Mid income, mid spend*; it may be worth considering this group even though it does not account for the highest spending scores (e.g. if reaching the both the low and high earners who have high spending scores would require two separate campaigns with associated costs)
+
+```{r, warning = F, message = F}
+customer_with_cluster  %>% 
+  group_by(cluster_name) %>% 
+  summarise(number_of_customers = n(),
+            avg_income = mean(annual_income_k),
+            avg_spending_score = mean(spending_score_1_100)) %>% 
+  arrange(avg_income)
+```
+
+```{r, warning = F, message = F}
+customer_with_cluster %>% 
+group_by(cluster_name) %>% 
+summarise(number_of_customers = n()) %>% 
+  ggplot() +
+  aes(x = reorder(cluster_name, -number_of_customers), y = number_of_customers) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(angle=45,hjust=1)) +
+  geom_col(fill = "steel blue") +
+   labs(title = "Number of customers by cluster \n",
+       x = "\n Cluster name",
+       y = "Number of customers \n"
+  )
+```
+
