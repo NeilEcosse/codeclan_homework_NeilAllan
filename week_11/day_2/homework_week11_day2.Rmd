@@ -61,9 +61,9 @@ As a percentage of the total for the groups below:
   
   * The lower the passenger class, the more people died
 
-Taking a few example figures from the dataset drives home just how horrific this event was: 
+Taking a few example figures from the dataset drives home just how horrific this event was; in the records which were selected for the clean data file: 
 
-Twenty-nine children aged 12 and under lost their lives in the disaster.
+There were twenty-nine children aged 12 and under who lost their lives in the disaster.
 
 One of them was [travelling without a parent](https://www.geni.com/people/Houssein-Mohamed-Hassan-Albimona/6000000015912251772) - he was on his way to visit them in America. 
 
