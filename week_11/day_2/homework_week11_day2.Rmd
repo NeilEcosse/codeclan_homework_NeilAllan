@@ -63,11 +63,13 @@ As a percentage of the total for the groups below:
 
 Taking a few example figures from the dataset drives home just how horrific this event was: 
 
-Twenty-nine children aged 12 and under lost their lives in the disaster
+Twenty-nine children aged 12 and under lost their lives in the disaster.
+
+One of them was [travelling without a parent](https://www.geni.com/people/Houssein-Mohamed-Hassan-Albimona/6000000015912251772) - he was on his way to visit them in America. 
 
 The three Palsson children listed below died along with their mother and an older sibling en route to join their father who had [emigrated to the US from Sweden](https://www.encyclopedia-titanica.org/titanic-victim/alma-cornelia-palsson.html)
 
-Houssein Hassan was [travelling without a parent](https://www.geni.com/people/Houssein-Mohamed-Hassan-Albimona/6000000015912251772) - he was on his way to visit them in America. 
+ 
 
 ```{r, warning = F, message = F}
 titanic_set %>% 
@@ -208,4 +210,4 @@ Based on this screenshot taken the first time I ran the model:
   
 * Male passengers had a 0.21 chance of dying
 
-I'm not really sure how to inrepret the data in the decision tree so I'll leave it there.
+I'm not really sure how to interpret the data in the decision tree so I'll leave it there and check at review.
