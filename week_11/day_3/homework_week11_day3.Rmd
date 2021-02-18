@@ -154,7 +154,7 @@ augment(income_spend_clustered, customers)
 
 
 ```{r, warning = F, message = F}
-# Manually create a static version - don't re-run before knit
+# Manually create a static version - temp fix so clusters are not re-run and assigned different number codes
 #customer_with_cluster_static <- tibble(customer_with_cluster)
 
 customer_with_cluster_static <- customer_with_cluster_static %>% 
