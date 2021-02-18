@@ -149,15 +149,23 @@ I'm making this into a new table which I may use for deciding which customers to
 *?? why is this showing different figures when I knit it*
 ```{r, warning = F, message = F}
 customer_with_cluster <-
-augment(income_spend_clustered, customers) %>% 
-  rename("cluster" = ".cluster") %>% 
-  mutate(cluster_name = recode(cluster, "1"  = "Mid income, mid spend",
-                               "2" = "High income, low spend",
-                               "3" = "Lower income, high spend",
-                               "4" = "High income, high spend",
-                               "5" = "Lower income, low spend",))
+augment(income_spend_clustered, customers)
+```
+
+
+```{r, warning = F, message = F}
+# Manually create a static version - don't re-run before knit
+#customer_with_cluster_static <- tibble(customer_with_cluster)
+
+customer_with_cluster_static <- customer_with_cluster_static %>% 
+  #rename("cluster" = ".cluster") %>% 
+  mutate(cluster_name = recode(cluster, "1"  = "High income, high spend",
+                               "2" = "Mid income, mid spend",
+                               "3" = "Lower income, low spend",
+                               "4" = "Lower income, high spend",
+                               "5" = "High income, low spend",))
   
-customer_with_cluster  %>% 
+customer_with_cluster_static  %>% 
   group_by(cluster, cluster_name) %>% 
   summarise(avg_income = mean(annual_income_k),
             avg_spending_score = mean(spending_score_1_100)) %>% 
@@ -218,7 +226,7 @@ The clusters are summarised in the output below - points to note which may be us
   * The cluster with the highest number of customers is *Mid income, mid spend*; it may be worth considering this group even though it does not account for the highest spending scores (e.g. if reaching the both the low and high earners who have high spending scores would require two separate campaigns with associated costs)
 
 ```{r, warning = F, message = F}
-customer_with_cluster  %>% 
+customer_with_cluster_static  %>% 
   group_by(cluster_name) %>% 
   summarise(number_of_customers = n(),
             avg_income = mean(annual_income_k),
@@ -227,7 +235,7 @@ customer_with_cluster  %>%
 ```
 
 ```{r, warning = F, message = F}
-customer_with_cluster %>% 
+customer_with_cluster_static %>% 
 group_by(cluster_name) %>% 
 summarise(number_of_customers = n()) %>% 
   ggplot() +
