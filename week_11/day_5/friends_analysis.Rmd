@@ -1,0 +1,55 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# install.packages("friends")
+library(tidyverse)
+library(here)
+```
+
+Data from:
+https://github.com/rfordatascience/tidytuesday/issues/254
+```{r}
+friends_data <- friends::friends %>% 
+  left_join(friends::friends_emotions, by = c("season" = "season",
+                                              "episode" = "episode",
+                                              "scene" = "scene",
+                                              "utterance" = "utterance")
+  ) %>% 
+#  left_join(friends::friends_entities, by = c("season" = "season",
+#                                              "episode" = "episode",
+#                                              "scene" = "scene",
+#                                              "utterance" = "utterance")
+#  ) %>% 
+    left_join(friends::friends_info, by = c("season" = "season",
+                                            "episode" = "episode")
+  ) %>% 
+  mutate(episode_text = ifelse(nchar(episode) > 1,
+                               episode,
+                               str_c("0", episode, sep = "")
+                        )
+  ) %>% 
+  mutate(season_episode =  as.numeric(str_c(season, episode_text, sep = "."))          
+  ) %>% 
+  select(-episode_text)
+
+write_csv(friends_data, here("clean_data/friends_data"))
+
+```
+
+```{r}
+friends_data %>% 
+  group_by(season_episode) %>% 
+  summarise(us_views_millions = first(us_views_millions)) %>% 
+  ggplot() +
+  aes(x = season_episode, y = us_views_millions) +
+  geom_col()
+```
+
+```{r}
+friends_data %>% any(nchar(episode) >1)
+  
+```
+

@@ -136,7 +136,7 @@ I'm creating five clusters, based on the plots I created in my exploratory analy
 ```{r, warning = F, message = F}
 
 income_spend_clustered <- kmeans(income_spend_scaled,
-                                 centers  = 5)
+                                 centers  = 5, nstart = 25)
 
 tidy(income_spend_clustered,
      col.names = colnames(income_spend_scaled))
@@ -161,11 +161,11 @@ augment(income_spend_clustered, customers)
 
 customer_with_cluster_static <- customer_with_cluster_static %>% 
   #rename("cluster" = ".cluster") %>% 
-  mutate(cluster_name = recode(cluster, "1"  = "High income, high spend",
-                               "2" = "Mid income, mid spend",
-                               "3" = "Lower income, low spend",
-                               "4" = "Lower income, high spend",
-                               "5" = "High income, low spend",))
+  mutate(cluster_name = recode(cluster, "1"  = "Mid income, mid spend",
+                               "2" = "Lower income, high spend",
+                               "3" = "High income, low spend",
+                               "4" = "Lower income, low spend",
+                               "5" = "High income, high spend"))
   
 customer_with_cluster_static  %>% 
   group_by(cluster, cluster_name) %>% 

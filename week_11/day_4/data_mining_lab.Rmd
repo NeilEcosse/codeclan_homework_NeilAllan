@@ -1,0 +1,35 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(tidytext)
+library(ggwordcloud)
+library(hcandersenr)
+library(harrypotter)
+library(janeaustenr)
+library(text2vec)
+glimpse(movie_review)
+```
+
+1 Word clouds in ggplot
+```{r}
+l_mermaid <- hcandersen_en %>% 
+  filter(book== "The little mermaid") 
+  book_mermaid <- l_mermaid %>% 
+  unnest_tokens(
+    word,
+    text
+  ) %>% 
+  anti_join(stop_words)
+ 
+  set.seed(19) 
+ book_mermaid %>% 
+   ggplot() +
+   aes(label = word) +
+   geom_text_wordcloud(min.freq = 20)
+
+```
+
