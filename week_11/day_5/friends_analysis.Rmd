@@ -1,13 +1,16 @@
 ---
-title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    code_folding: hide
+  html_notebook: default
+  pdf_document: default
 ---
 
 # Friends data
 
 This uses data from the **Friends** package
 
-Detals including the data dictionary can be found here:
+Details including the data dictionary can be found here:
 
 https://github.com/rfordatascience/tidytuesday/issues/254
 
@@ -54,7 +57,24 @@ friends_data <- friends::friends %>%
   ) %>% 
   # add episode number and title
   mutate(episode_number_name = str_c(episode_text, title, sep = " - ")) %>% 
-  select(-episode_text)
+  
+  # Get text version of scene with leading zero for single-digit scenes
+  mutate(scene_text = ifelse(nchar(scene) > 1,
+                               scene,
+                               str_c("0", scene, sep = "")
+                        )
+  ) %>%
+  
+  # Get text version of episodescene
+  mutate(episode_scene = str_c(episode_text, scene_text, sep = "")) %>% 
+  
+  # Add episode & scene text versions to season to get numeric value in format "season.episodescene"
+  mutate(season_episode_scene =  as.numeric(str_c(season, episode_scene, sep = "."))          
+  ) %>%
+  
+  select(-c(episode_text, scene_text, episode_scene))
+
+
 
 # output this to a csv
 #write_csv(friends_data, here("clean_data/friends_data"))
@@ -86,12 +106,20 @@ friends_words <- friends_data %>%
   mutate(utterance_id = as.numeric(str_c(season, episode, scene, utterance, sep = "")))
 ```
 
+## Create a "main characters" vector
+
+For use in subsequent queries
+```{r}
+# Create main characters vector
+main_characters <- c("Ross Geller", "Monica Geller", "Joey Tribbiani", "Chandler Bing", "Rachel Green", "Phoebe Buffay")
+```
+
 
 ## Most common words
 
 These are the fifty most commonly used words over the ten seasons of *Friends* (not including stop words)
 
-The short words like "uh", "yeah" and gotta should probably be removed, but they do give quite a good indication of dialogue.
+The short words like "uh", "yeah" and "gotta" should probably be excluded, but they do give quite a good indication of dialogue.
 
 ```{r, warning = F, message = F}
 friends_words %>% 
@@ -111,9 +139,10 @@ panel.background = element_blank(), axis.line = element_line(colour = "black")) 
        y = "Count")
 
 ```
+
 ## Most common words - TF-IDF
 
-I'll nbeed to look at this again - don't think my code is working correctly
+I'll need to look at this again - don't think my code is working correctly
 ```{r, warning = F, message = F}
 friends_tf_idf <- friends_words %>%
   count(word, utterance_id) %>%
@@ -124,7 +153,7 @@ head(friends_tf_idf)
 
 ## Most common sentiment words
 
-These are the fifty most common sentiment words which were mapped to an `afinn`sentiment value.
+These are the fifty most common sentiment words which were mapped to an `afinn` sentiment value.
 
 The colour scale shows most positive words in bright green, most negative in bright red. 
 
@@ -146,17 +175,104 @@ friends_sentiment_words <- friends_words %>%
   scale_color_gradient(low = "#d7191c", high = "#1a9641")
 ```
 
+## Searches for strings
 
+
+
+
+```{r, warning = F, message = F}
+friends_words %>% 
+  filter(word == "wow") %>% 
+  group_by(speaker) %>% 
+  summarise(count = n()) %>% 
+  filter(count >5) %>% 
+  arrange(desc(count)) %>% 
+  ggplot() +
+  aes(x = reorder(speaker, -count), y = count) +
+    theme(axis.text.x = element_text(angle=45,hjust=1)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    geom_col(fill = "steel blue") +
+  labs(title = "Characters who said 'wow' at least five times",
+       subtitle = "Total for all seasons  \n",
+       x = "Character",
+       y = "Count")
+```
+
+
+
+```{r, warning = F, message = F}
+friends_words %>% 
+  filter(word == "cool") %>% 
+  group_by(speaker) %>% 
+  summarise(count = n()) %>% 
+  filter(count >5) %>% 
+  arrange(desc(count)) %>% 
+  ggplot() +
+  aes(x = reorder(speaker, -count), y = count) +
+    theme(axis.text.x = element_text(angle=45,hjust=1)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    geom_col(fill = "steel blue") +
+  labs(title = "Characters who said 'cool' at least five times",
+       subtitle = "Total for all seasons  \n",
+       x = "Character",
+       y = "Count")
+```
+
+
+
+```{r, warning = F, message = F}
+friends_data %>% 
+  filter(str_detect(text, "[Oo][Nn] [Aa] [Bb][Rr][Ee][Aa][Kk]")) %>% 
+  group_by(speaker) %>% 
+  summarise(count = n()) %>% 
+  ggplot() +
+  aes(x = reorder(speaker, -count), y = count) +
+    theme(axis.text.x = element_text(angle=45,hjust=1)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  scale_y_continuous(breaks = 1:10) +
+    geom_col(fill = "steel blue") +
+  labs(title = "Characters who said 'on a break'",
+       subtitle = "Total for all seasons  \n",
+       x = "Character",
+       y = "Count")
+
+
+```
+
+```{r, warning = F, message = F}
+friends_data %>% 
+  filter(str_detect(text, "[Oo][Nn] [Aa] [Bb][Rr][Ee][Aa][Kk]")) %>% 
+  select(season, speaker, text)
+```
+
+
+```{r, warning = F, message = F}
+friends_data %>% 
+  filter(str_detect(text, "[Hh][Oo][Ww] [Yy][Oo][Uu] [Dd][Oo][Ii][Nn]")) %>% 
+  group_by(speaker) %>% 
+  summarise(count = n()) %>% 
+  ggplot() +
+  aes(x = reorder(speaker, -count), y = count) +
+    theme(axis.text.x = element_text(angle=45,hjust=1)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    geom_col(fill = "steel blue") +
+  labs(title = "Characters who said 'how you doin'",
+       subtitle = "Total for all seasons  \n",
+       x = "Character",
+       y = "Count")
+```
 
 
 ## Mean sentiment value by episode and character
 
 ```{r, warning = F, message = F}
 friends_words %>%
-  filter(speaker %in% c("Ross Geller", "Monica Geller", "Joey Tribbiani", "Chandler Bing", "Rachel Green", "Phoebe Buffay")) %>% 
-  #filter(speaker == "Ross Geller") %>% 
+  filter(speaker %in% main_characters) %>% 
   filter(!is.na(sentiment_value)) %>% 
-  #filter(season == 5) %>% 
   group_by(speaker, season_episode) %>% 
   summarise(sentiment_value = mean(sentiment_value)) %>% 
   ggplot()+
@@ -181,7 +297,7 @@ panel.background = element_blank(), axis.line = element_line(colour = "black")) 
 
 
 ## Episodes with lowest mean sentiment value - Ross
-```{r}
+```{r, warning = F, message = F}
  
 friends_words %>%
   filter(speaker == "Ross Geller") %>% 
@@ -195,7 +311,7 @@ friends_words %>%
 
 
 ## Episodes with lowest mean sentiment value - Phoebe
-```{r}
+```{r, warning = F, message = F}
  
 friends_words %>%
   filter(speaker == "Phoebe Buffay") %>% 
@@ -208,7 +324,7 @@ friends_words %>%
 ```
 
 ## Episodes with lowest mean sentiment value - Joey
-```{r}
+```{r, warning = F, message = F}
  
 friends_words %>%
   filter(speaker == "Joey Tribbiani") %>% 
@@ -219,20 +335,81 @@ friends_words %>%
   head(5)
   
 ```
+## Number of "negative" and "positive" words spoken by main characters
 
+Using the `bing` classifications.
 
+Everyone said more negative than positive.
+```{r, warning = F, message = F}
 
-```{r}
-friends_data %>% 
-  group_by(season_episode) %>% 
-  summarise(us_views_millions = first(us_views_millions)) %>% 
-  ggplot() +
-  aes(x = season_episode, y = us_views_millions) +
-  geom_col()
+friends_words %>%
+  filter(speaker %in% main_characters) %>% 
+  filter(!is.na(sentiment)) %>% 
+  group_by(speaker, sentiment) %>% 
+  summarise(sentiment_count = n()) %>% 
+  ggplot()+
+  aes(x = speaker, y = sentiment_count, fill = sentiment) +
+  geom_col(position = "dodge")  +
+  theme(legend.position="bottom") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    scale_fill_manual(
+    values = c(
+      "positive" = "#1a9641",
+      "negative" = "#d7191c"
+    )
+  )+
+  labs(
+    title = "Number of positive and negative sentiment words by character ",
+    subtitle = "Total for all seasons  \n",
+    x = "Season & episode \n",
+    y = "Sentiment word count"
+  )
 ```
 
-```{r}
-friends_data %>% any(nchar(episode) >1)
-  
+
+## What do the main characters' sentiments look like on a scene-by-scene basis?
+
+```{r, warning = F, message = F}
+
+friends_words %>% 
+  filter(!is.na(sentiment_value)) %>% 
+  filter(speaker %in% main_characters) %>% 
+  group_by(speaker, season_episode_scene) %>% 
+  summarise(sentiment_value = mean(sentiment_value)) %>% 
+  arrange(speaker, season_episode_scene) %>% 
+  mutate(scene_n = row_number()) %>% 
+  mutate(story_position = scene_n/max(scene_n)) %>% 
+ 
+   ggplot +
+    aes(x = story_position, y = sentiment_value, colour = speaker) +
+      geom_line() +
+      guides(colour = FALSE) +
+      facet_wrap(~speaker, nrow = 6) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) 
+```
+
+
+## ...and what if we take a mean per season?
+
+Have I done something wrong with the way I calculated mean here?
+```{r, warning = F, message = F}
+friends_words %>% 
+  filter(!is.na(sentiment_value)) %>% 
+  filter(speaker %in% main_characters) %>% 
+  group_by(speaker, season) %>% 
+  summarise(sentiment_value = mean(sentiment_value)) %>% 
+  arrange(speaker, season) %>% 
+
+ 
+   ggplot +
+    aes(x = season, y = sentiment_value, colour = speaker) +
+      geom_line() +
+      guides(colour = FALSE) +
+      facet_wrap(~speaker, nrow = 6) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  scale_x_continuous(breaks = 1:10)
 ```
 
