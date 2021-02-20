@@ -3,15 +3,32 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-```{r}
+# Friends data
+
+This uses data from the **Friends** package
+
+Detals including the data dictionary can be found here:
+
+https://github.com/rfordatascience/tidytuesday/issues/254
+
+
+```{r, warning = F, message = F}
 # install.packages("friends")
+library(tidytext)
 library(tidyverse)
 library(here)
+library(textdata)
+library(grid)
 ```
 
-Data from:
-https://github.com/rfordatascience/tidytuesday/issues/254
-```{r}
+
+
+## Load, join and clean data
+
+This creates the object `friends_data`
+
+```{r, warning = F, message = F}
+# Import and join data
 friends_data <- friends::friends %>% 
   left_join(friends::friends_emotions, by = c("season" = "season",
                                               "episode" = "episode",
@@ -26,18 +43,125 @@ friends_data <- friends::friends %>%
     left_join(friends::friends_info, by = c("season" = "season",
                                             "episode" = "episode")
   ) %>% 
+  # Get text version of episode with leading zero for single-digit episodes
   mutate(episode_text = ifelse(nchar(episode) > 1,
                                episode,
                                str_c("0", episode, sep = "")
                         )
   ) %>% 
+  # Add episode text version to season to get numeric value in format "season.episode"
   mutate(season_episode =  as.numeric(str_c(season, episode_text, sep = "."))          
   ) %>% 
+  # add episode number and title
+  mutate(episode_number_name = str_c(episode_text, title, sep = " - ")) %>% 
   select(-episode_text)
 
-write_csv(friends_data, here("clean_data/friends_data"))
+# output this to a csv
+#write_csv(friends_data, here("clean_data/friends_data"))
+
 
 ```
+
+## Unnest the text data
+
+This creates the object `friends_words`
+
+Note that stop words have been removed.
+
+```{r}
+# unnest text of utterance into words, remove stop words, add sentiment
+friends_words <- friends_data %>%
+  unnest_tokens(word, text) %>% 
+  anti_join(stop_words) %>% 
+  select(-emotion) %>% 
+  left_join(get_sentiments("bing")) %>% 
+  left_join(get_sentiments("afinn")) %>% 
+  rename("sentiment_value" = "value")
+```
+
+
+## Most common words
+
+These are the fifty most commonly used words over the ten seasons of *Friends* (not including stop words)
+
+```{r}
+
+```
+
+
+
+## Mean sentiment value by episode and character
+
+```{r, warning = F, message = F}
+friends_words %>%
+  filter(speaker %in% c("Ross Geller", "Monica Geller", "Joey Tribbiani", "Chandler Bing", "Rachel Green", "Phoebe Buffay")) %>% 
+  #filter(speaker == "Ross Geller") %>% 
+  filter(!is.na(sentiment_value)) %>% 
+  #filter(season == 5) %>% 
+  group_by(speaker, season_episode) %>% 
+  summarise(sentiment_value = mean(sentiment_value)) %>% 
+  ggplot()+
+  aes(x = season_episode, y = sentiment_value, fill = sentiment_value) +
+  geom_col()  +
+  coord_flip() +
+  theme(legend.position="") +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  scale_fill_gradient2(midpoint = 0, low = "#d7191c", high = "#1a9641", mid = "#ffffbf") +
+  scale_x_reverse(limits = c(10.25, 1), breaks = 1:10) +
+  facet_grid(~speaker) +
+  labs(
+    title = "Mean sentiment value by episode and character \n",
+    x = "Season & episode \n",
+    y = "Sentiment value"
+  )
+
+
+```
+
+
+
+## Episodes with lowest mean sentiment value - Ross
+```{r}
+ 
+friends_words %>%
+  filter(speaker == "Ross Geller") %>% 
+  filter(!is.na(sentiment_value)) %>% 
+  group_by(season_episode, title) %>% 
+  summarise(sentiment_value = mean(sentiment_value)) %>% 
+  arrange(sentiment_value) %>% 
+  head(5)
+  
+```
+
+
+## Episodes with lowest mean sentiment value - Phoebe
+```{r}
+ 
+friends_words %>%
+  filter(speaker == "Phoebe Buffay") %>% 
+  filter(!is.na(sentiment_value)) %>% 
+  group_by(season_episode, title) %>% 
+  summarise(sentiment_value = mean(sentiment_value)) %>% 
+  arrange(sentiment_value) %>% 
+  head(5)
+  
+```
+
+## Episodes with lowest mean sentiment value - Joey
+```{r}
+ 
+friends_words %>%
+  filter(speaker == "Joey Tribbiani") %>% 
+  filter(!is.na(sentiment_value)) %>% 
+  group_by(season_episode, title) %>% 
+  summarise(sentiment_value = mean(sentiment_value)) %>% 
+  arrange(sentiment_value) %>% 
+  head(5)
+  
+```
+
+
 
 ```{r}
 friends_data %>% 
