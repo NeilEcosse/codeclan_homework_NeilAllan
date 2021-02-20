@@ -18,7 +18,7 @@ library(tidytext)
 library(tidyverse)
 library(here)
 library(textdata)
-library(grid)
+library(ggwordcloud)
 ```
 
 
@@ -68,15 +68,22 @@ This creates the object `friends_words`
 
 Note that stop words have been removed.
 
-```{r}
+Scene directions have also been removed.
+
+
+
+
+```{r, warning = F, message = F}
 # unnest text of utterance into words, remove stop words, add sentiment
 friends_words <- friends_data %>%
+  filter(speaker != "Scene Directions") %>% 
   unnest_tokens(word, text) %>% 
   anti_join(stop_words) %>% 
   select(-emotion) %>% 
   left_join(get_sentiments("bing")) %>% 
   left_join(get_sentiments("afinn")) %>% 
-  rename("sentiment_value" = "value")
+  rename("sentiment_value" = "value") %>% 
+  mutate(utterance_id = as.numeric(str_c(season, episode, scene, utterance, sep = "")))
 ```
 
 
@@ -84,9 +91,61 @@ friends_words <- friends_data %>%
 
 These are the fifty most commonly used words over the ten seasons of *Friends* (not including stop words)
 
-```{r}
+The short words like "uh", "yeah" and gotta should probably be removed, but they do give quite a good indication of dialogue.
+
+```{r, warning = F, message = F}
+friends_words %>% 
+  group_by(word) %>% 
+  summarise(count = n()) %>% 
+  arrange(desc(count)) %>% 
+  head(50) %>% 
+  ggplot()+
+  aes(x = reorder(word, -count), y = count)+
+  theme(axis.text.x = element_text(angle=45,hjust=1)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  geom_col(fill = "steel blue") +
+  labs(title = "Most common words spoken  in Friends",
+       subtitle = "Total for all seasons  \n",
+       x = "Word",
+       y = "Count")
 
 ```
+## Most common words - TF-IDF
+
+I'll nbeed to look at this again - don't think my code is working correctly
+```{r, warning = F, message = F}
+friends_tf_idf <- friends_words %>%
+  count(word, utterance_id) %>%
+  bind_tf_idf(term = word, document = utterance_id, n = n) %>% 
+  arrange(desc(tf_idf))
+head(friends_tf_idf)
+```
+
+## Most common sentiment words
+
+These are the fifty most common sentiment words which were mapped to an `afinn`sentiment value.
+
+The colour scale shows most positive words in bright green, most negative in bright red. 
+
+```{r, warning = F, message = F}
+friends_sentiment_words <- friends_words %>% 
+  filter(!is.na(sentiment_value)) %>% 
+  group_by(word, sentiment_value) %>% 
+  summarise(count = n()) %>% 
+  arrange(desc(count)) %>% 
+  head(50)
+  
+
+  friends_sentiment_words %>% 
+  ggplot()+
+    aes(label= word, size = count, colour = sentiment_value) +
+      geom_text_wordcloud_area() +
+  scale_size_area(max_size = 24) +
+  theme_minimal() +
+  scale_color_gradient(low = "#d7191c", high = "#1a9641")
+```
+
 
 
 
