@@ -455,6 +455,8 @@ panel.background = element_blank(), axis.line = element_line(colour = "black")) 
 
 ## Acceptable in the 90s...
 
+Lots of people have noted that Friends can be pretty cringy in places when you watch it now - I'm trying a few bits of analysis to see if I can highlight anything:
+
 ### Sexist language
 
 This checks for 20 terms mentioned in this survey:
@@ -487,8 +489,33 @@ friends_words %>%
 panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
   theme(legend.position = "") +
-  labs(title = "Use of words with a sexist connotation \n")
+  labs(title = "Use of words with a sexist connotation",
+       subtitle = "Total for all seasons  \n")
 ```
+
+### Which writers used these words most often?
+
+```{r, warning = F, message = F}
+# Sexist words
+friends_words %>% 
+  filter(word %in% sexist_words) %>% 
+  filter(speaker != "Scene Directions") %>% 
+  group_by(written_by) %>% 
+  summarise(count = n()) %>% 
+  filter(count > 2) %>% 
+  arrange(desc(count)) %>% 
+  ggplot()+
+  aes(x = reorder(written_by, -count), y = count) +
+  geom_col() +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  theme(legend.position = "") +
+  labs(title = "Number of words with a sexist connotation by writer",
+       subtitle = "Total for all seasons  \n")
+```
+
+
 ```{r, warning = F, message = F}
 # Sexist bigrams
 
@@ -506,7 +533,8 @@ friends_data %>%
 panel.background = element_blank(), axis.line = element_line(colour = "black")) +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
   theme(legend.position = "") +
-  labs(title = "Use of phrases with a sexist connotation \n")
+  labs(title = "Use of phrases with a sexist connotation",
+       subtitle = "Total for all seasons  \n")
 ```
 
 
