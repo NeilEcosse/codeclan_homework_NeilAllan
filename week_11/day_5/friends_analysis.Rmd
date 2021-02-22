@@ -29,6 +29,13 @@ library(lubridate)
 
 ## Load, join and clean data
 
+This creates the object `friends_data`
+
+This contains data from the original tables `friends::friends` and `friends::friends_info`
+
+It also adds some derived fields - for example `season` and `episode` have been added together (e.g. season 1, episode 1 becomes 1.01)
+
+
 
 
 
